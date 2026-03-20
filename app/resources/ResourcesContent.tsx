@@ -22,12 +22,6 @@ const resources = [
       "The official U.S. government site for Medicare. Find information about eligibility, enrollment, benefits, and coverage options.",
     url: "https://www.medicare.gov",
   },
-  {
-    name: "Florida Agency for Health Care Administration (AHCA)",
-    description:
-      "Florida's state agency responsible for the administration of the Medicaid program, licensure and regulation of health facilities, and health care quality initiatives.",
-    url: "https://ahca.myflorida.com",
-  },
 ];
 
 export function ResourcesContent() {
@@ -46,8 +40,8 @@ export function ResourcesContent() {
               Resources
             </h1>
             <p className="mt-4 text-lg text-neutral-mid">
-              Helpful links and resources for home health care information,
-              Medicare, and Florida health care regulations.
+              Helpful links and resources for home health care information
+              and Medicare.
             </p>
           </motion.div>
         </div>

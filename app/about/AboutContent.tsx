@@ -96,10 +96,21 @@ export function AboutContent() {
                 <p className="mt-4 text-neutral-dark leading-relaxed italic">
                   &ldquo;We believe that the ongoing interaction between the
                   client, their environment, and their health behaviors has a
-                  significant impact on a client&apos;s health outcome. Our
-                  approach centers on understanding each individual&apos;s
-                  unique needs and creating personalized care plans that promote
-                  wellness, independence, and dignity.&rdquo;
+                  significant impact on a client&apos;s health outcome. As a
+                  result, in order to maximize a client&apos;s health outcome,
+                  home health care services must be aimed at achieving and
+                  maintaining harmony in that ongoing, interactive process. To
+                  that end, the services provided by home health care
+                  professionals must not only be holistic. They must also be
+                  carried out through an interdisciplinary collaborative process
+                  that addresses specific client needs and takes client/family
+                  preferences into account. Humanity and Blessings Home Health
+                  upholds the core values of human rights respect (i.e., the
+                  right to self-determination, the right to privacy and
+                  confidentiality, the right to fair treatment, and the right to
+                  protection from discomfort and harm), the mind/body/spirit
+                  connection, as well as human care principles, serve as the
+                  foundations of our services.&rdquo;
                 </p>
               </div>
             </motion.div>
@@ -124,9 +135,9 @@ export function AboutContent() {
               <p className="mt-4 text-neutral-mid leading-relaxed">
                 We are a family-owned business dedicated to serving the community
                 with compassion and integrity. In the areas we serve, our highly
-                skilled specialists deliver excellent home health care services,
-                helping clients live safer, healthier, and more fulfilling lives
-                in the comfort of their own homes.
+                skilled specialists deliver excellent home health care services.
+                We endeavor to exceed each client&apos;s expectations by referring
+                talented and experienced independent contractors.
               </p>
             </motion.div>
 

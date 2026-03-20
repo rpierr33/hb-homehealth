@@ -47,15 +47,16 @@ const openPositions = [
 ];
 
 const requirements = [
-  "Level 2 Background Screening",
-  "Valid CPR Card",
-  "Physical Exam within 6 months",
+  "Level 2 Background Screening on File with AHCA",
+  "Valid CPR Card Through American Heart Association, American Red Cross, or American Health and Safety Institute",
+  'Physical Exam Done Within the Last 6 Months Stating "Free of Communicable Diseases"',
   "HIV/AIDS Certificate (1 Hour)",
   "Alzheimer's Training Certificate (1 Hour)",
   "Self-Administration of Medication Certificate (2 Hours)",
+  "Professional Liability Insurance (Recommended)",
   "Driver's License",
   "Social Security Card",
-  "Current Auto Insurance",
+  "Current Automobile Insurance and Vehicle Registration",
 ];
 
 interface ApplicationFormData {
