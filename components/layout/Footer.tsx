@@ -22,9 +22,9 @@ export function Footer() {
               <Image
                 src="/logo.webp"
                 alt="Humanity & Blessings Home Health"
-                width={64}
-                height={64}
-                className="h-16 w-auto mb-5"
+                width={80}
+                height={80}
+                className="h-20 w-auto mb-5"
               />
               <p className="text-xl font-bold tracking-tight text-white">
                 Humanity &amp; Blessings Home Health

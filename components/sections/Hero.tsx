@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   Phone,
@@ -81,16 +82,17 @@ export function Hero() {
       />
 
       <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8 lg:py-36">
+        <div className="grid items-center gap-12 lg:grid-cols-2">
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="mx-auto max-w-3xl text-center"
+          className="max-w-xl"
         >
           {/* Badges with pulse */}
           <motion.div
             variants={childVariants}
-            className="mb-8 flex flex-wrap items-center justify-center gap-3"
+            className="mb-8 flex flex-wrap items-center gap-3"
           >
             <motion.span
               variants={badgePulse}
@@ -116,7 +118,7 @@ export function Hero() {
           {/* Heading with gradient text */}
           <motion.h1
             variants={childVariants}
-            className="font-display text-4xl font-bold tracking-tight text-neutral-dark sm:text-5xl lg:text-6xl xl:text-7xl"
+            className="font-display text-4xl font-bold tracking-tight text-neutral-dark sm:text-5xl lg:text-6xl"
           >
             Improving Lives{" "}
             <span className="bg-gradient-to-r from-primary via-primary-dark to-accent bg-clip-text text-transparent">
@@ -135,7 +137,7 @@ export function Hero() {
           {/* CTAs with premium glow */}
           <motion.div
             variants={childVariants}
-            className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
+            className="mt-10 flex flex-col items-start gap-4 sm:flex-row"
           >
             <Link
               href="/contact"
@@ -156,7 +158,7 @@ export function Hero() {
           {/* Trust indicators */}
           <motion.div
             variants={childVariants}
-            className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-neutral-mid sm:gap-8"
+            className="mt-12 flex flex-wrap items-center gap-6 text-sm text-neutral-mid sm:gap-8"
           >
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-light">
@@ -180,6 +182,28 @@ export function Hero() {
             </div>
           </motion.div>
         </motion.div>
+
+          {/* Hero Image */}
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="relative hidden lg:block"
+          >
+            <div className="absolute -inset-2 rounded-[1.5rem] bg-gradient-to-br from-primary via-accent to-secondary opacity-20 blur-md" />
+            <div className="relative overflow-hidden rounded-2xl shadow-2xl">
+              <Image
+                src="/images/hero-caregiver.jpg"
+                alt="Caregiver interacting warmly with elderly patient"
+                width={600}
+                height={400}
+                className="h-auto w-full object-cover"
+                priority
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent" />
+            </div>
+          </motion.div>
+        </div>
       </div>
 
       {/* Animated wave SVG separator */}

@@ -105,14 +105,14 @@ export function AboutSnapshot() {
 
             <motion.div
               style={{ y: imageY }}
-              className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-gradient-to-br from-primary-light to-accent-light flex items-center justify-center"
+              className="relative aspect-[4/3] overflow-hidden rounded-2xl"
             >
               <Image
-                src="/logo.webp"
-                alt="Humanity & Blessings Home Health"
-                width={300}
-                height={300}
-                className="h-48 w-auto opacity-80"
+                src="/images/about-care.jpg"
+                alt="Caregiver holding hands with elderly patient"
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 50vw"
               />
             </motion.div>
 
