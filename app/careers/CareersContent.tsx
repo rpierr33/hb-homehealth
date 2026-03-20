@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import {
   Send,
   CheckCircle,
@@ -112,23 +113,40 @@ export function CareersContent() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-gradient-to-b from-primary-light to-white py-20">
+      <section className="relative overflow-hidden bg-gradient-to-b from-primary-light to-white py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mx-auto max-w-3xl text-center"
-          >
-            <h1 className="font-display text-4xl font-bold text-neutral-dark sm:text-5xl">
-              Join Our Team
-            </h1>
-            <p className="mt-4 text-lg text-neutral-mid">
-              Humanity &amp; Blessings Home Health is looking for compassionate,
-              skilled healthcare professionals to join our growing family. Help
-              us improve lives together.
-            </p>
-          </motion.div>
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h1 className="font-display text-4xl font-bold text-neutral-dark sm:text-5xl">
+                Join Our Team
+              </h1>
+              <p className="mt-4 text-lg text-neutral-mid">
+                Humanity &amp; Blessings Home Health is looking for compassionate,
+                skilled healthcare professionals to join our growing family. Help
+                us improve lives together.
+              </p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="relative hidden lg:block"
+            >
+              <div className="overflow-hidden rounded-2xl shadow-xl">
+                <Image
+                  src="/images/nurse-patient.jpg"
+                  alt="Nurse caring for patient"
+                  width={600}
+                  height={400}
+                  className="h-auto w-full object-cover"
+                />
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 

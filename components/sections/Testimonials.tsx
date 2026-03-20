@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import { ChevronLeft, ChevronRight, Star, Quote } from "lucide-react";
 
 const testimonials = [
@@ -137,7 +138,16 @@ export function Testimonials() {
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mx-auto max-w-2xl text-center">
+        <div className="mx-auto max-w-4xl text-center">
+          <div className="mx-auto mb-6 h-20 w-20 overflow-hidden rounded-full shadow-lg ring-4 ring-white">
+            <Image
+              src="/images/hands-caring.jpg"
+              alt="Compassionate care"
+              width={80}
+              height={80}
+              className="h-full w-full object-cover"
+            />
+          </div>
           <p className="text-sm font-semibold uppercase tracking-wider text-primary">
             Testimonials
           </p>

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
 import {
   Heart,
@@ -37,21 +38,38 @@ export function AboutContent() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-gradient-to-b from-primary-light to-white py-20">
+      <section className="relative overflow-hidden bg-gradient-to-b from-primary-light to-white py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mx-auto max-w-3xl text-center"
-          >
-            <h1 className="font-display text-4xl font-bold text-neutral-dark sm:text-5xl">
-              About Humanity &amp; Blessings Home Health
-            </h1>
-            <p className="mt-4 text-lg text-neutral-mid">
-              Improving Lives Together
-            </p>
-          </motion.div>
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h1 className="font-display text-4xl font-bold text-neutral-dark sm:text-5xl">
+                About Humanity &amp; Blessings Home Health
+              </h1>
+              <p className="mt-4 text-lg text-neutral-mid">
+                Improving Lives Together
+              </p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="relative hidden lg:block"
+            >
+              <div className="overflow-hidden rounded-2xl shadow-xl">
+                <Image
+                  src="/images/testimonials-bg.jpg"
+                  alt="Healthcare professional embracing senior patient"
+                  width={600}
+                  height={400}
+                  className="h-auto w-full object-cover"
+                />
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -90,7 +108,17 @@ export function AboutContent() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.2 }}
+              className="space-y-6"
             >
+              <div className="overflow-hidden rounded-2xl">
+                <Image
+                  src="/images/about-care.jpg"
+                  alt="Caregiver helping elderly woman walk with mobility walker at home"
+                  width={600}
+                  height={400}
+                  className="h-auto w-full object-cover"
+                />
+              </div>
               <div className="rounded-2xl bg-primary-light p-8">
                 <h3 className="font-display text-xl font-bold text-primary">Our Philosophy</h3>
                 <p className="mt-4 text-neutral-dark leading-relaxed italic">
