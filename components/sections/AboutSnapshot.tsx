@@ -108,7 +108,7 @@ export function AboutSnapshot() {
               className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-gradient-to-br from-primary-light to-accent-light flex items-center justify-center"
             >
               <Image
-                src="/logo.png"
+                src="/logo.webp"
                 alt="Humanity & Blessings Home Health"
                 width={300}
                 height={300}

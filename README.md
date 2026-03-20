@@ -1,6 +1,6 @@
-# Mindcare of America — Healthcare Platform
+# Humanity & Blessings Home Health
 
-Full-stack web application for Mindcare of America, a psychiatric & mental health services provider.
+Full-stack web application for Humanity & Blessings Home Health, a family-owned home health care agency serving Broward County, FL.
 
 ## Tech Stack
 
@@ -34,7 +34,7 @@ Fill in your `.env.local` with:
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (server-side only) |
 | `RESEND_API_KEY` | Resend API key for sending emails |
 | `NOTIFICATION_EMAIL` | Email address to receive form notifications |
-| `NEXT_PUBLIC_SITE_URL` | Production URL (e.g., https://www.mindcareofamerica.com) |
+| `NEXT_PUBLIC_SITE_URL` | Production URL (e.g., https://www.humanityandblessings.com) |
 
 ### 3. Set up Supabase database
 

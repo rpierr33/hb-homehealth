@@ -6,8 +6,8 @@ export function JsonLd() {
     description:
       "Family-owned home health care and healthcare staffing agency serving Broward County, Florida. We provide CNAs, HHAs, RNs, LPNs, companions, and sitters for compassionate in-home care.",
     url: "https://www.humanityandblessings.com",
-    logo: "https://www.humanityandblessings.com/logo.png",
-    image: "https://www.humanityandblessings.com/logo.png",
+    logo: "https://www.humanityandblessings.com/logo.webp",
+    image: "https://www.humanityandblessings.com/logo.webp",
     telephone: "+1-954-000-0000",
     email: "info@humanityandblessings.com",
     foundingDate: "2021",
