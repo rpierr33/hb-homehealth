@@ -12,7 +12,10 @@ import {
   Stethoscope,
   Users,
   ClipboardList,
+  ChevronRight,
+  ChevronLeft,
 } from "lucide-react";
+import { SITE } from "@/lib/site-config";
 
 const openPositions = [
   {
@@ -48,15 +51,15 @@ const openPositions = [
 ];
 
 const requirements = [
-  "Level 2 Background Screening on File with AHCA",
-  "Valid CPR Card Through American Heart Association, American Red Cross, or American Health and Safety Institute",
-  'Physical Exam Done Within the Last 6 Months Stating "Free of Communicable Diseases"',
-  "HIV/AIDS Certificate (1 Hour)",
-  "Alzheimer's Training Certificate (1 Hour)",
+  "Valid CNA, HHA, RN, LPN, or Companion certification (as applicable)",
+  "Level 2 Background Screening (AHCA/FBI/FDLE)",
+  "CPR / BLS Certification (current)",
+  "HIV/AIDS Training Certificate (1 Hour)",
+  "OSHA / Infection Control Certificate",
+  "Alzheimer's Disease & Related Dementia Training (1 Hour)",
+  "Domestic Violence Training (1 Hour)",
+  "Medical Errors Prevention Certificate (2 Hours)",
   "Self-Administration of Medication Certificate (2 Hours)",
-  "Professional Liability Insurance (Recommended)",
-  "Driver's License",
-  "Social Security Card",
   "Current Automobile Insurance and Vehicle Registration",
 ];
 
@@ -103,10 +106,23 @@ interface ApplicationFormData {
   agreesToTerms: boolean;
 }
 
+const STEPS = [
+  "Personal Info",
+  "Position",
+  "Education",
+  "Work History",
+  "References",
+  "Review & Submit",
+];
+
+const inputClass = "mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary";
+const labelClass = "block text-sm font-medium text-neutral-dark";
+
 export function CareersContent() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [step, setStep] = useState(0);
   const [formData, setFormData] = useState<ApplicationFormData>({
     firstName: "",
     lastName: "",
@@ -158,8 +174,7 @@ export function CareersContent() {
     setFormData((prev) => ({ ...prev, [target.name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setSubmitting(true);
     setError("");
     try {
@@ -171,12 +186,249 @@ export function CareersContent() {
       if (res.ok) {
         setSubmitted(true);
       } else {
-        setError("Something went wrong. Please try again or call us directly at (954) 555-0123.");
+        setError(`Something went wrong. Please try again or call us directly at ${SITE.contact.phone.display}.`);
       }
     } catch {
-      setError("Something went wrong. Please try again or call us directly at (954) 555-0123.");
+      setError(`Something went wrong. Please try again or call us directly at ${SITE.contact.phone.display}.`);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const canAdvance = () => {
+    switch (step) {
+      case 0: return formData.firstName && formData.lastName && formData.email && formData.phone && formData.address && formData.city && formData.zip;
+      case 1: return formData.positionAppliedFor && formData.availableStartDate && formData.schedulePreference && formData.authorizedToWork && formData.felonyConviction;
+      case 2: return formData.highestEducation && formData.hasReliableTransport;
+      case 3: return true; // employment history is optional
+      case 4: return formData.reference1Name && formData.reference1Phone && formData.reference1Relationship && formData.reference2Name && formData.reference2Phone && formData.reference2Relationship;
+      case 5: return formData.agreesToTerms;
+      default: return false;
+    }
+  };
+
+  const next = () => { if (canAdvance() && step < STEPS.length - 1) setStep(step + 1); };
+  const prev = () => { if (step > 0) setStep(step - 1); };
+
+  const renderStep = () => {
+    switch (step) {
+      case 0: return (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className={labelClass} htmlFor="firstName">First Name *</label>
+            <input id="firstName" name="firstName" required value={formData.firstName} onChange={handleChange} className={inputClass} />
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="lastName">Last Name *</label>
+            <input id="lastName" name="lastName" required value={formData.lastName} onChange={handleChange} className={inputClass} />
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="email">Email Address *</label>
+            <input id="email" name="email" type="email" required value={formData.email} onChange={handleChange} className={inputClass} />
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="phone">Phone Number *</label>
+            <input id="phone" name="phone" type="tel" required value={formData.phone} onChange={handleChange} className={inputClass} />
+          </div>
+          <div className="sm:col-span-2">
+            <label className={labelClass} htmlFor="address">Street Address *</label>
+            <input id="address" name="address" required value={formData.address} onChange={handleChange} className={inputClass} />
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="city">City *</label>
+            <input id="city" name="city" required value={formData.city} onChange={handleChange} className={inputClass} />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass} htmlFor="state">State *</label>
+              <input id="state" name="state" required value={formData.state} onChange={handleChange} className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass} htmlFor="zip">ZIP Code *</label>
+              <input id="zip" name="zip" required value={formData.zip} onChange={handleChange} className={inputClass} />
+            </div>
+          </div>
+        </div>
+      );
+
+      case 1: return (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className={labelClass} htmlFor="positionAppliedFor">Position Applied For *</label>
+            <select id="positionAppliedFor" name="positionAppliedFor" required value={formData.positionAppliedFor} onChange={handleChange} className={inputClass}>
+              <option value="">Select a position...</option>
+              <option value="CNA">Certified Nursing Assistant (CNA)</option>
+              <option value="HHA">Home Health Aide (HHA)</option>
+              <option value="RN">Registered Nurse (RN)</option>
+              <option value="LPN">Licensed Practical Nurse (LPN)</option>
+              <option value="Companion">Companion</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="desiredPayRate">Desired Pay Rate</label>
+            <input id="desiredPayRate" name="desiredPayRate" value={formData.desiredPayRate} onChange={handleChange} placeholder="e.g. $18/hr" className={inputClass} />
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="availableStartDate">Available Start Date *</label>
+            <input id="availableStartDate" name="availableStartDate" type="date" required value={formData.availableStartDate} onChange={handleChange} className={inputClass} />
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="schedulePreference">Schedule Preference *</label>
+            <select id="schedulePreference" name="schedulePreference" required value={formData.schedulePreference} onChange={handleChange} className={inputClass}>
+              <option value="">Select...</option>
+              <option value="Full-Time">Full-Time</option>
+              <option value="Part-Time">Part-Time</option>
+              <option value="Per Diem">Per Diem</option>
+              <option value="Weekends Only">Weekends Only</option>
+              <option value="Flexible">Flexible</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="authorizedToWork">Authorized to work in the U.S.? *</label>
+            <select id="authorizedToWork" name="authorizedToWork" required value={formData.authorizedToWork} onChange={handleChange} className={inputClass}>
+              <option value="">Select...</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="felonyConviction">Ever convicted of a felony? *</label>
+            <select id="felonyConviction" name="felonyConviction" required value={formData.felonyConviction} onChange={handleChange} className={inputClass}>
+              <option value="">Select...</option>
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+            </select>
+          </div>
+          {formData.felonyConviction === "Yes" && (
+            <div className="sm:col-span-2">
+              <label className={labelClass} htmlFor="felonyExplanation">If yes, please explain</label>
+              <textarea id="felonyExplanation" name="felonyExplanation" rows={2} value={formData.felonyExplanation} onChange={handleChange} className={inputClass} />
+            </div>
+          )}
+        </div>
+      );
+
+      case 2: return (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className={labelClass} htmlFor="highestEducation">Highest Level of Education *</label>
+            <select id="highestEducation" name="highestEducation" required value={formData.highestEducation} onChange={handleChange} className={inputClass}>
+              <option value="">Select...</option>
+              <option value="High School Diploma / GED">High School Diploma / GED</option>
+              <option value="Some College">Some College</option>
+              <option value="Associate Degree">Associate Degree</option>
+              <option value="Bachelor's Degree">Bachelor&apos;s Degree</option>
+              <option value="Master's Degree">Master&apos;s Degree</option>
+              <option value="Doctoral Degree">Doctoral Degree</option>
+              <option value="Vocational / Trade School">Vocational / Trade School</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="schoolName">School / Institution Name</label>
+            <input id="schoolName" name="schoolName" value={formData.schoolName} onChange={handleChange} className={inputClass} />
+          </div>
+          <div className="sm:col-span-2">
+            <label className={labelClass} htmlFor="certifications">Certifications &amp; Licenses</label>
+            <textarea id="certifications" name="certifications" rows={2} value={formData.certifications} onChange={handleChange} placeholder="e.g. CNA License #12345, BLS Certification..." className={inputClass} />
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="cprExpiration">CPR Certification Expiration</label>
+            <input id="cprExpiration" name="cprExpiration" type="date" value={formData.cprExpiration} onChange={handleChange} className={inputClass} />
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="driversLicense">Driver&apos;s License Number</label>
+            <input id="driversLicense" name="driversLicense" value={formData.driversLicense} onChange={handleChange} className={inputClass} />
+          </div>
+          <div className="sm:col-span-2">
+            <label className={labelClass} htmlFor="hasReliableTransport">Reliable transportation? *</label>
+            <select id="hasReliableTransport" name="hasReliableTransport" required value={formData.hasReliableTransport} onChange={handleChange} className={inputClass}>
+              <option value="">Select...</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </div>
+        </div>
+      );
+
+      case 3: return (
+        <div className="space-y-6">
+          <p className="text-sm text-neutral-mid">List your two most recent employers (optional but recommended).</p>
+          <div className="rounded-lg bg-neutral-light p-5">
+            <p className="mb-3 text-sm font-semibold text-primary">Most Recent Employer</p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div><label className={labelClass} htmlFor="employer1Name">Company Name</label><input id="employer1Name" name="employer1Name" value={formData.employer1Name} onChange={handleChange} className={inputClass} /></div>
+              <div><label className={labelClass} htmlFor="employer1Title">Job Title</label><input id="employer1Title" name="employer1Title" value={formData.employer1Title} onChange={handleChange} className={inputClass} /></div>
+              <div><label className={labelClass} htmlFor="employer1Dates">Dates</label><input id="employer1Dates" name="employer1Dates" value={formData.employer1Dates} onChange={handleChange} placeholder="e.g. Jan 2022 - Dec 2024" className={inputClass} /></div>
+              <div><label className={labelClass} htmlFor="employer1ReasonForLeaving">Reason for Leaving</label><input id="employer1ReasonForLeaving" name="employer1ReasonForLeaving" value={formData.employer1ReasonForLeaving} onChange={handleChange} className={inputClass} /></div>
+              <div className="sm:col-span-2"><label className={labelClass} htmlFor="employer1Duties">Key Duties</label><textarea id="employer1Duties" name="employer1Duties" rows={2} value={formData.employer1Duties} onChange={handleChange} className={inputClass} /></div>
+            </div>
+          </div>
+          <div className="rounded-lg bg-neutral-light p-5">
+            <p className="mb-3 text-sm font-semibold text-primary">Previous Employer</p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div><label className={labelClass} htmlFor="employer2Name">Company Name</label><input id="employer2Name" name="employer2Name" value={formData.employer2Name} onChange={handleChange} className={inputClass} /></div>
+              <div><label className={labelClass} htmlFor="employer2Title">Job Title</label><input id="employer2Title" name="employer2Title" value={formData.employer2Title} onChange={handleChange} className={inputClass} /></div>
+              <div><label className={labelClass} htmlFor="employer2Dates">Dates</label><input id="employer2Dates" name="employer2Dates" value={formData.employer2Dates} onChange={handleChange} placeholder="e.g. Jun 2020 - Dec 2021" className={inputClass} /></div>
+              <div><label className={labelClass} htmlFor="employer2ReasonForLeaving">Reason for Leaving</label><input id="employer2ReasonForLeaving" name="employer2ReasonForLeaving" value={formData.employer2ReasonForLeaving} onChange={handleChange} className={inputClass} /></div>
+              <div className="sm:col-span-2"><label className={labelClass} htmlFor="employer2Duties">Key Duties</label><textarea id="employer2Duties" name="employer2Duties" rows={2} value={formData.employer2Duties} onChange={handleChange} className={inputClass} /></div>
+            </div>
+          </div>
+        </div>
+      );
+
+      case 4: return (
+        <div className="space-y-6">
+          <p className="text-sm text-neutral-mid">Provide two professional references (not family members).</p>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div><label className={labelClass} htmlFor="reference1Name">Reference 1 — Name *</label><input id="reference1Name" name="reference1Name" required value={formData.reference1Name} onChange={handleChange} className={inputClass} /></div>
+            <div><label className={labelClass} htmlFor="reference1Phone">Phone *</label><input id="reference1Phone" name="reference1Phone" type="tel" required value={formData.reference1Phone} onChange={handleChange} className={inputClass} /></div>
+            <div><label className={labelClass} htmlFor="reference1Relationship">Relationship *</label><input id="reference1Relationship" name="reference1Relationship" required value={formData.reference1Relationship} onChange={handleChange} placeholder="e.g. Former Supervisor" className={inputClass} /></div>
+            <div><label className={labelClass} htmlFor="reference2Name">Reference 2 — Name *</label><input id="reference2Name" name="reference2Name" required value={formData.reference2Name} onChange={handleChange} className={inputClass} /></div>
+            <div><label className={labelClass} htmlFor="reference2Phone">Phone *</label><input id="reference2Phone" name="reference2Phone" type="tel" required value={formData.reference2Phone} onChange={handleChange} className={inputClass} /></div>
+            <div><label className={labelClass} htmlFor="reference2Relationship">Relationship *</label><input id="reference2Relationship" name="reference2Relationship" required value={formData.reference2Relationship} onChange={handleChange} placeholder="e.g. Coworker" className={inputClass} /></div>
+          </div>
+          <div className="grid gap-4">
+            <div><label className={labelClass} htmlFor="resumeNotes">Resume Link or Notes</label><input id="resumeNotes" name="resumeNotes" value={formData.resumeNotes} onChange={handleChange} placeholder="Paste a link to your resume or relevant notes..." className={inputClass} /></div>
+            <div><label className={labelClass} htmlFor="additionalInfo">Anything else you&apos;d like us to know?</label><textarea id="additionalInfo" name="additionalInfo" rows={3} value={formData.additionalInfo} onChange={handleChange} placeholder="Tell us about your experience, skills, or why you'd like to join our team..." className={inputClass} /></div>
+          </div>
+        </div>
+      );
+
+      case 5: return (
+        <div className="space-y-6">
+          <p className="text-sm text-neutral-mid">Please review your information before submitting.</p>
+          <div className="space-y-4">
+            {[
+              { title: "Personal Info", items: [`${formData.firstName} ${formData.lastName}`, formData.email, formData.phone, `${formData.address}, ${formData.city}, ${formData.state} ${formData.zip}`] },
+              { title: "Position", items: [formData.positionAppliedFor, `Start: ${formData.availableStartDate}`, formData.schedulePreference, `Pay: ${formData.desiredPayRate || "Not specified"}`] },
+              { title: "Education", items: [formData.highestEducation, formData.schoolName, formData.certifications].filter(Boolean) },
+              { title: "Work History", items: [formData.employer1Name ? `${formData.employer1Title} at ${formData.employer1Name}` : "Not provided", formData.employer2Name ? `${formData.employer2Title} at ${formData.employer2Name}` : ""].filter(Boolean) },
+              { title: "References", items: [`${formData.reference1Name} (${formData.reference1Relationship})`, `${formData.reference2Name} (${formData.reference2Relationship})`] },
+            ].map((section) => (
+              <div key={section.title} className="rounded-lg bg-neutral-light p-4">
+                <p className="text-sm font-semibold text-primary mb-1">{section.title}</p>
+                {section.items.map((item, i) => (
+                  <p key={i} className="text-sm text-neutral-dark">{item}</p>
+                ))}
+              </div>
+            ))}
+          </div>
+          <div className="rounded-lg border border-gray-200 bg-neutral-light p-5">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                name="agreesToTerms"
+                checked={formData.agreesToTerms}
+                onChange={handleChange}
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              <span className="text-sm text-neutral-dark leading-relaxed">
+                I certify that the information provided in this application is true and complete to the best of my knowledge. I understand that any misrepresentation or omission may be grounds for rejection of my application or termination of employment. I authorize Humanity &amp; Blessings Home Health to verify the information provided and to contact references. *
+              </span>
+            </label>
+          </div>
+        </div>
+      );
     }
   };
 
@@ -186,11 +438,7 @@ export function CareersContent() {
       <section className="relative overflow-hidden bg-gradient-to-b from-primary-light to-white py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid items-center gap-12 lg:grid-cols-2">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
+            <div>
               <h1 className="font-display text-4xl font-bold text-neutral-dark sm:text-5xl">
                 Join Our Team
               </h1>
@@ -199,7 +447,7 @@ export function CareersContent() {
                 skilled healthcare professionals to join our growing family. Help
                 us improve lives together.
               </p>
-            </motion.div>
+            </div>
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
@@ -208,7 +456,7 @@ export function CareersContent() {
             >
               <div className="overflow-hidden rounded-2xl shadow-xl">
                 <Image
-                  src="/images/nurse-patient.jpg"
+                  src="/images/nurse-patient-v3.jpg"
                   alt="Nurse caring for patient"
                   width={600}
                   height={400}
@@ -228,33 +476,20 @@ export function CareersContent() {
               Open Positions
             </h2>
             <p className="mt-4 text-neutral-mid">
-              We are currently hiring for the following roles in Broward County,
-              Florida.
+              We are currently hiring for the following roles in Broward County, Florida.
             </p>
           </div>
-
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {openPositions.map((position, index) => {
+            {openPositions.map((position) => {
               const Icon = position.icon;
               return (
-                <motion.div
-                  key={position.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: index * 0.08 }}
-                  className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm"
-                >
+                <div key={position.title} className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
                   <div className="mb-3 inline-flex rounded-lg bg-primary-light p-2.5">
                     <Icon size={22} className="text-primary" />
                   </div>
-                  <h3 className="font-bold text-neutral-dark">
-                    {position.title}
-                  </h3>
-                  <p className="mt-2 text-sm text-neutral-mid">
-                    {position.description}
-                  </p>
-                </motion.div>
+                  <h3 className="font-bold text-neutral-dark">{position.title}</h3>
+                  <p className="mt-2 text-sm text-neutral-mid">{position.description}</p>
+                </div>
               );
             })}
           </div>
@@ -269,33 +504,20 @@ export function CareersContent() {
               <div className="mb-4 inline-flex rounded-xl bg-accent-light p-3">
                 <ClipboardList size={28} className="text-accent" />
               </div>
-              <h2 className="font-display text-3xl font-bold text-neutral-dark">
-                Requirements
-              </h2>
+              <h2 className="font-display text-3xl font-bold text-neutral-dark">Requirements</h2>
               <p className="mt-4 text-neutral-mid leading-relaxed">
-                All applicants must meet the following requirements to be
-                considered for employment with Humanity &amp; Blessings Home
-                Health. These are standard Florida home health care industry
-                requirements.
+                All applicants must meet the following requirements to be considered for employment.
               </p>
             </div>
-
             <div className="rounded-2xl bg-white p-8 shadow-sm">
               <ul className="space-y-3">
-                {requirements.map((req, index) => (
-                  <motion.li
-                    key={req}
-                    initial={{ opacity: 0, x: 10 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.3, delay: index * 0.04 }}
-                    className="flex items-center gap-3"
-                  >
+                {requirements.map((req) => (
+                  <li key={req} className="flex items-center gap-3">
                     <div className="shrink-0 rounded-full bg-secondary-light p-1.5">
                       <ShieldCheck size={14} className="text-secondary" />
                     </div>
                     <span className="text-neutral-dark">{req}</span>
-                  </motion.li>
+                  </li>
                 ))}
               </ul>
             </div>
@@ -303,7 +525,7 @@ export function CareersContent() {
         </div>
       </section>
 
-      {/* Application Form */}
+      {/* Multi-Step Application Form */}
       <section className="py-20">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           {submitted ? (
@@ -317,323 +539,84 @@ export function CareersContent() {
                 Application Submitted!
               </h3>
               <p className="mt-2 text-neutral-mid">
-                Thank you for your interest in joining our team. We&apos;ll
-                review your application and be in touch soon.
+                Thank you for your interest in joining our team. We&apos;ll review your application and be in touch soon.
               </p>
             </motion.div>
           ) : (
-            <motion.form
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              onSubmit={handleSubmit}
-              className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm"
-            >
-              <div className="mb-8 flex items-center gap-3">
+            <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+              {/* Header */}
+              <div className="mb-6 flex items-center gap-3">
                 <div className="rounded-xl bg-primary-light p-2.5">
                   <Briefcase size={22} className="text-primary" />
                 </div>
                 <div>
-                  <h2 className="font-display text-2xl font-bold text-neutral-dark">
-                    Employment Application
-                  </h2>
-                  <p className="text-sm text-neutral-mid">
-                    Fields marked with * are required.
-                  </p>
+                  <h2 className="font-display text-2xl font-bold text-neutral-dark">Employment Application</h2>
+                  <p className="text-sm text-neutral-mid">Step {step + 1} of {STEPS.length} — {STEPS[step]}</p>
                 </div>
               </div>
 
-              {/* Section 1: Personal Information */}
-              <fieldset className="mb-8">
-                <legend className="mb-4 text-lg font-bold text-neutral-dark border-b border-gray-200 pb-2 w-full">
-                  Personal Information
-                </legend>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="firstName">First Name *</label>
-                    <input id="firstName" name="firstName" required value={formData.firstName} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="lastName">Last Name *</label>
-                    <input id="lastName" name="lastName" required value={formData.lastName} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="email">Email Address *</label>
-                    <input id="email" name="email" type="email" required value={formData.email} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="phone">Phone Number *</label>
-                    <input id="phone" name="phone" type="tel" required value={formData.phone} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="address">Street Address *</label>
-                    <input id="address" name="address" required value={formData.address} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="city">City *</label>
-                    <input id="city" name="city" required value={formData.city} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-dark" htmlFor="state">State *</label>
-                      <input id="state" name="state" required value={formData.state} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-dark" htmlFor="zip">ZIP Code *</label>
-                      <input id="zip" name="zip" required value={formData.zip} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                    </div>
-                  </div>
+              {/* Progress Bar */}
+              <div className="mb-8">
+                <div className="flex justify-between mb-2">
+                  {STEPS.map((s, i) => (
+                    <button
+                      key={s}
+                      onClick={() => { if (i < step) setStep(i); }}
+                      className={`text-xs font-medium transition-colors hidden sm:block ${
+                        i === step ? "text-primary" : i < step ? "text-secondary cursor-pointer hover:text-secondary/80" : "text-gray-300"
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
                 </div>
-              </fieldset>
-
-              {/* Section 2: Position & Availability */}
-              <fieldset className="mb-8">
-                <legend className="mb-4 text-lg font-bold text-neutral-dark border-b border-gray-200 pb-2 w-full">
-                  Position &amp; Availability
-                </legend>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="positionAppliedFor">Position Applied For *</label>
-                    <select id="positionAppliedFor" name="positionAppliedFor" required value={formData.positionAppliedFor} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary">
-                      <option value="">Select a position...</option>
-                      <option value="CNA">Certified Nursing Assistant (CNA)</option>
-                      <option value="HHA">Home Health Aide (HHA)</option>
-                      <option value="RN">Registered Nurse (RN)</option>
-                      <option value="LPN">Licensed Practical Nurse (LPN)</option>
-                      <option value="Companion">Companion</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="desiredPayRate">Desired Pay Rate</label>
-                    <input id="desiredPayRate" name="desiredPayRate" value={formData.desiredPayRate} onChange={handleChange} placeholder="e.g. $18/hr" className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="availableStartDate">Available Start Date *</label>
-                    <input id="availableStartDate" name="availableStartDate" type="date" required value={formData.availableStartDate} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="schedulePreference">Schedule Preference *</label>
-                    <select id="schedulePreference" name="schedulePreference" required value={formData.schedulePreference} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary">
-                      <option value="">Select...</option>
-                      <option value="Full-Time">Full-Time</option>
-                      <option value="Part-Time">Part-Time</option>
-                      <option value="Per Diem">Per Diem</option>
-                      <option value="Weekends Only">Weekends Only</option>
-                      <option value="Flexible">Flexible</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="authorizedToWork">Are you authorized to work in the U.S.? *</label>
-                    <select id="authorizedToWork" name="authorizedToWork" required value={formData.authorizedToWork} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary">
-                      <option value="">Select...</option>
-                      <option value="Yes">Yes</option>
-                      <option value="No">No</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="felonyConviction">Have you ever been convicted of a felony? *</label>
-                    <select id="felonyConviction" name="felonyConviction" required value={formData.felonyConviction} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary">
-                      <option value="">Select...</option>
-                      <option value="No">No</option>
-                      <option value="Yes">Yes</option>
-                    </select>
-                  </div>
-                  {formData.felonyConviction === "Yes" && (
-                    <div className="sm:col-span-2">
-                      <label className="block text-sm font-medium text-neutral-dark" htmlFor="felonyExplanation">If yes, please explain</label>
-                      <textarea id="felonyExplanation" name="felonyExplanation" rows={2} value={formData.felonyExplanation} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                    </div>
-                  )}
-                </div>
-              </fieldset>
-
-              {/* Section 3: Education & Certifications */}
-              <fieldset className="mb-8">
-                <legend className="mb-4 text-lg font-bold text-neutral-dark border-b border-gray-200 pb-2 w-full">
-                  Education &amp; Certifications
-                </legend>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="highestEducation">Highest Level of Education *</label>
-                    <select id="highestEducation" name="highestEducation" required value={formData.highestEducation} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary">
-                      <option value="">Select...</option>
-                      <option value="High School Diploma / GED">High School Diploma / GED</option>
-                      <option value="Some College">Some College</option>
-                      <option value="Associate Degree">Associate Degree</option>
-                      <option value="Bachelor's Degree">Bachelor&apos;s Degree</option>
-                      <option value="Master's Degree">Master&apos;s Degree</option>
-                      <option value="Doctoral Degree">Doctoral Degree</option>
-                      <option value="Vocational / Trade School">Vocational / Trade School</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="schoolName">School / Institution Name</label>
-                    <input id="schoolName" name="schoolName" value={formData.schoolName} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="certifications">Certifications &amp; Licenses (list all, separated by commas)</label>
-                    <textarea id="certifications" name="certifications" rows={2} value={formData.certifications} onChange={handleChange} placeholder="e.g. CNA License #12345, BLS Certification, HIV/AIDS Certificate..." className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="cprExpiration">CPR Certification Expiration Date</label>
-                    <input id="cprExpiration" name="cprExpiration" type="date" value={formData.cprExpiration} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="driversLicense">Driver&apos;s License Number</label>
-                    <input id="driversLicense" name="driversLicense" value={formData.driversLicense} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="hasReliableTransport">Do you have reliable transportation? *</label>
-                    <select id="hasReliableTransport" name="hasReliableTransport" required value={formData.hasReliableTransport} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary">
-                      <option value="">Select...</option>
-                      <option value="Yes">Yes</option>
-                      <option value="No">No</option>
-                    </select>
-                  </div>
-                </div>
-              </fieldset>
-
-              {/* Section 4: Employment History */}
-              <fieldset className="mb-8">
-                <legend className="mb-4 text-lg font-bold text-neutral-dark border-b border-gray-200 pb-2 w-full">
-                  Employment History
-                </legend>
-                <p className="mb-4 text-sm text-neutral-mid">Please list your two most recent employers.</p>
-
-                {/* Employer 1 */}
-                <div className="mb-6 rounded-lg bg-neutral-light p-5">
-                  <p className="mb-3 text-sm font-semibold text-primary">Most Recent Employer</p>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-dark" htmlFor="employer1Name">Employer / Company Name</label>
-                      <input id="employer1Name" name="employer1Name" value={formData.employer1Name} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-dark" htmlFor="employer1Title">Job Title</label>
-                      <input id="employer1Title" name="employer1Title" value={formData.employer1Title} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-dark" htmlFor="employer1Dates">Dates of Employment</label>
-                      <input id="employer1Dates" name="employer1Dates" value={formData.employer1Dates} onChange={handleChange} placeholder="e.g. Jan 2022 - Dec 2024" className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-dark" htmlFor="employer1ReasonForLeaving">Reason for Leaving</label>
-                      <input id="employer1ReasonForLeaving" name="employer1ReasonForLeaving" value={formData.employer1ReasonForLeaving} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                    </div>
-                    <div className="sm:col-span-2">
-                      <label className="block text-sm font-medium text-neutral-dark" htmlFor="employer1Duties">Key Duties &amp; Responsibilities</label>
-                      <textarea id="employer1Duties" name="employer1Duties" rows={2} value={formData.employer1Duties} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Employer 2 */}
-                <div className="rounded-lg bg-neutral-light p-5">
-                  <p className="mb-3 text-sm font-semibold text-primary">Previous Employer</p>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-dark" htmlFor="employer2Name">Employer / Company Name</label>
-                      <input id="employer2Name" name="employer2Name" value={formData.employer2Name} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-dark" htmlFor="employer2Title">Job Title</label>
-                      <input id="employer2Title" name="employer2Title" value={formData.employer2Title} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-dark" htmlFor="employer2Dates">Dates of Employment</label>
-                      <input id="employer2Dates" name="employer2Dates" value={formData.employer2Dates} onChange={handleChange} placeholder="e.g. Jun 2020 - Dec 2021" className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-dark" htmlFor="employer2ReasonForLeaving">Reason for Leaving</label>
-                      <input id="employer2ReasonForLeaving" name="employer2ReasonForLeaving" value={formData.employer2ReasonForLeaving} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                    </div>
-                    <div className="sm:col-span-2">
-                      <label className="block text-sm font-medium text-neutral-dark" htmlFor="employer2Duties">Key Duties &amp; Responsibilities</label>
-                      <textarea id="employer2Duties" name="employer2Duties" rows={2} value={formData.employer2Duties} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                    </div>
-                  </div>
-                </div>
-              </fieldset>
-
-              {/* Section 5: References */}
-              <fieldset className="mb-8">
-                <legend className="mb-4 text-lg font-bold text-neutral-dark border-b border-gray-200 pb-2 w-full">
-                  Professional References
-                </legend>
-                <p className="mb-4 text-sm text-neutral-mid">Please provide two professional references (not family members).</p>
-                <div className="grid gap-4 sm:grid-cols-3">
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="reference1Name">Reference 1 — Name *</label>
-                    <input id="reference1Name" name="reference1Name" required value={formData.reference1Name} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="reference1Phone">Phone *</label>
-                    <input id="reference1Phone" name="reference1Phone" type="tel" required value={formData.reference1Phone} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="reference1Relationship">Relationship *</label>
-                    <input id="reference1Relationship" name="reference1Relationship" required value={formData.reference1Relationship} onChange={handleChange} placeholder="e.g. Former Supervisor" className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="reference2Name">Reference 2 — Name *</label>
-                    <input id="reference2Name" name="reference2Name" required value={formData.reference2Name} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="reference2Phone">Phone *</label>
-                    <input id="reference2Phone" name="reference2Phone" type="tel" required value={formData.reference2Phone} onChange={handleChange} className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="reference2Relationship">Relationship *</label>
-                    <input id="reference2Relationship" name="reference2Relationship" required value={formData.reference2Relationship} onChange={handleChange} placeholder="e.g. Coworker" className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                  </div>
-                </div>
-              </fieldset>
-
-              {/* Section 6: Additional Information */}
-              <fieldset className="mb-8">
-                <legend className="mb-4 text-lg font-bold text-neutral-dark border-b border-gray-200 pb-2 w-full">
-                  Additional Information
-                </legend>
-                <div className="grid gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="resumeNotes">Resume Link or Notes</label>
-                    <input id="resumeNotes" name="resumeNotes" value={formData.resumeNotes} onChange={handleChange} placeholder="Paste a link to your resume or relevant notes..." className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-dark" htmlFor="additionalInfo">Anything else you&apos;d like us to know?</label>
-                    <textarea id="additionalInfo" name="additionalInfo" rows={4} value={formData.additionalInfo} onChange={handleChange} placeholder="Tell us about your experience, skills, or why you'd like to join our team..." className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary" />
-                  </div>
-                </div>
-              </fieldset>
-
-              {/* Agreement */}
-              <div className="mb-6 rounded-lg border border-gray-200 bg-neutral-light p-5">
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    name="agreesToTerms"
-                    required
-                    checked={formData.agreesToTerms}
-                    onChange={handleChange}
-                    className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                <div className="h-2 w-full rounded-full bg-gray-100 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-primary to-secondary transition-all duration-500 ease-out"
+                    style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
                   />
-                  <span className="text-sm text-neutral-dark leading-relaxed">
-                    I certify that the information provided in this application is true and complete to the best of my knowledge. I understand that any misrepresentation or omission may be grounds for rejection of my application or termination of employment. I authorize Humanity &amp; Blessings Home Health to verify the information provided and to contact references. *
-                  </span>
-                </label>
+                </div>
+              </div>
+
+              {/* Step Content */}
+              <div className="min-h-[300px]">
+                {renderStep()}
               </div>
 
               {error && <p className="mt-4 text-sm text-red-500">{error}</p>}
 
-              <button
-                type="submit"
-                disabled={submitting}
-                className="mt-2 inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-primary-dark hover:shadow-lg disabled:opacity-50"
-              >
-                <Send size={18} />
-                {submitting ? "Submitting Application..." : "Submit Application"}
-              </button>
-            </motion.form>
+              {/* Navigation */}
+              <div className="mt-8 flex justify-between">
+                <button
+                  onClick={prev}
+                  disabled={step === 0}
+                  className="inline-flex items-center gap-2 rounded-full border-2 border-gray-200 px-6 py-3 text-sm font-semibold text-neutral-mid transition-all hover:border-gray-300 hover:text-neutral-dark disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft size={16} />
+                  Back
+                </button>
+
+                {step < STEPS.length - 1 ? (
+                  <button
+                    onClick={next}
+                    disabled={!canAdvance()}
+                    className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Next
+                    <ChevronRight size={16} />
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleSubmit}
+                    disabled={submitting || !formData.agreesToTerms}
+                    className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-sm font-semibold text-white transition-all hover:bg-primary-dark hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Send size={16} />
+                    {submitting ? "Submitting..." : "Submit Application"}
+                  </button>
+                )}
+              </div>
+            </div>
           )}
         </div>
       </section>

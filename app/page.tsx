@@ -1,4 +1,5 @@
 import { Hero } from "@/components/sections/Hero";
+import { TrustBadges } from "@/components/sections/TrustBadges";
 import { ServiceAreas } from "@/components/sections/ServiceAreas";
 import { AboutSnapshot } from "@/components/sections/AboutSnapshot";
 import { ServicesGrid } from "@/components/sections/ServicesGrid";
@@ -10,6 +11,7 @@ export default function HomePage() {
   return (
     <>
       <Hero />
+      <TrustBadges />
       <ServiceAreas />
       <AboutSnapshot />
       <ServicesGrid />

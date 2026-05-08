@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Phone, Mail, MapPin, Clock, Send, CheckCircle } from "lucide-react";
+import { Phone, Mail, MapPin, Clock, Send, CheckCircle, Printer } from "lucide-react";
+import { SITE } from "@/lib/site-config";
 
 interface ContactFormData {
   firstName: string;
@@ -98,7 +99,7 @@ export function ContactContent() {
                       Office Address
                     </p>
                     <p className="text-neutral-mid">
-                      Oakland Park, FL 33334
+                      {SITE.address.fullLine}
                     </p>
                   </div>
                 </div>
@@ -110,10 +111,10 @@ export function ContactContent() {
                   <div>
                     <p className="font-semibold text-neutral-dark">Phone</p>
                     <a
-                      href="tel:9545550123"
+                      href={`tel:${SITE.contact.phone.tel}`}
                       className="text-primary hover:text-primary-dark"
                     >
-                      (954) 555-0123
+                      {SITE.contact.phone.display}
                     </a>
                   </div>
                 </div>
@@ -125,11 +126,21 @@ export function ContactContent() {
                   <div>
                     <p className="font-semibold text-neutral-dark">Email</p>
                     <a
-                      href="mailto:support@humanityandblessings.com"
+                      href={`mailto:${SITE.contact.email}`}
                       className="text-primary hover:text-primary-dark"
                     >
-                      support@humanityandblessings.com
+                      {SITE.contact.email}
                     </a>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="rounded-lg bg-primary-light p-2.5">
+                    <Printer size={20} className="text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-neutral-dark">Fax</p>
+                    <p className="text-neutral-mid">{SITE.contact.fax.display}</p>
                   </div>
                 </div>
 
@@ -142,7 +153,9 @@ export function ContactContent() {
                       Hours of Operation
                     </p>
                     <p className="text-neutral-mid">
-                      Mon&ndash;Fri: 9:00 AM &ndash; 5:00 PM
+                      Office: Mon&ndash;Fri: 7:00 AM &ndash; 3:00 PM
+                      <br />
+                      Operations: Mon&ndash;Fri: 7:00 AM &ndash; 6:00 PM
                       <br />
                       Saturday: Upon Request
                       <br />
@@ -155,14 +168,14 @@ export function ContactContent() {
               {/* Map */}
               <div className="mt-8 overflow-hidden rounded-xl">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14311.0!2d-80.15!3d26.17!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88d904e1e35e8c9d%3A0x7a8e1c5d5b8c5b5b!2sOakland+Park%2C+FL+33334!5e0!3m2!1sen!2sus!4v1"
+                  src={`https://www.google.com/maps?q=${SITE.address.mapsQuery}&output=embed`}
                   width="100%"
                   height="250"
                   style={{ border: 0 }}
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title="Humanity & Blessings Home Health - Oakland Park, FL"
+                  title={`${SITE.company.name} - ${SITE.address.city}, ${SITE.address.state}`}
                 />
               </div>
             </div>
@@ -289,6 +302,7 @@ export function ContactContent() {
                           Companion / Sitter
                         </option>
                         <option value="Skilled Nursing">Skilled Nursing</option>
+                        <option value="Not Sure">Not sure — I need guidance</option>
                         <option value="Other">Other</option>
                       </select>
                     </div>

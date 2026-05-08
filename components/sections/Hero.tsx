@@ -13,26 +13,6 @@ import {
   HandHeart,
 } from "lucide-react";
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.1,
-    },
-  },
-};
-
-const childVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
-  },
-};
-
 const badgePulse = {
   initial: { scale: 1 },
   animate: {
@@ -83,17 +63,9 @@ export function Hero() {
 
       <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8 lg:py-36">
         <div className="grid items-center gap-12 lg:grid-cols-2">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="max-w-xl"
-        >
+        <div className="max-w-xl">
           {/* Badges with pulse */}
-          <motion.div
-            variants={childVariants}
-            className="mb-8 flex flex-wrap items-center gap-3"
-          >
+          <div className="mb-8 flex flex-wrap items-center gap-3">
             <motion.span
               variants={badgePulse}
               initial="initial"
@@ -113,32 +85,23 @@ export function Hero() {
               <MapPin size={14} />
               Serving Broward County
             </motion.span>
-          </motion.div>
+          </div>
 
           {/* Heading with gradient text */}
-          <motion.h1
-            variants={childVariants}
-            className="font-display text-4xl font-bold tracking-tight text-neutral-dark sm:text-5xl lg:text-6xl"
-          >
+          <h1 className="font-display text-4xl font-bold tracking-tight text-neutral-dark sm:text-5xl lg:text-6xl">
             Improving Lives{" "}
             <span className="bg-gradient-to-r from-primary via-primary-dark to-accent bg-clip-text text-transparent">
               Together
             </span>
-          </motion.h1>
+          </h1>
 
-          <motion.p
-            variants={childVariants}
-            className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-neutral-mid sm:text-xl"
-          >
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-neutral-mid sm:text-xl">
             Each member of our care team works together to help you maintain the
             quality of life you deserve.
-          </motion.p>
+          </p>
 
-          {/* CTAs with premium glow */}
-          <motion.div
-            variants={childVariants}
-            className="mt-10 flex flex-col items-start gap-4 sm:flex-row"
-          >
+          {/* CTAs */}
+          <div className="mt-10 flex flex-col items-start gap-4 sm:flex-row">
             <Link
               href="/contact"
               className="group inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-base font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-300 hover:bg-primary-dark hover:shadow-xl hover:shadow-primary/40 hover:-translate-y-0.5"
@@ -153,13 +116,10 @@ export function Hero() {
               <HandHeart size={20} />
               Our Services
             </Link>
-          </motion.div>
+          </div>
 
           {/* Trust indicators */}
-          <motion.div
-            variants={childVariants}
-            className="mt-12 flex flex-wrap items-center gap-6 text-sm text-neutral-mid sm:gap-8"
-          >
+          <div className="mt-12 flex flex-wrap items-center gap-6 text-sm text-neutral-mid sm:gap-8">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-light">
                 <MapPin size={14} className="text-primary" />
@@ -180,8 +140,8 @@ export function Hero() {
               </div>
               <span className="font-medium">Licensed &amp; Insured</span>
             </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
 
           {/* Hero Image */}
           <motion.div
@@ -193,7 +153,7 @@ export function Hero() {
             <div className="absolute -inset-2 rounded-[1.5rem] bg-gradient-to-br from-primary via-accent to-secondary opacity-20 blur-md" />
             <div className="relative overflow-hidden rounded-2xl shadow-2xl">
               <Image
-                src="/images/hero-caregiver.jpg"
+                src="/images/hero-caregiver-v2.jpg"
                 alt="Caregiver interacting warmly with elderly patient"
                 width={600}
                 height={400}
@@ -206,33 +166,24 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Animated wave SVG separator */}
+      {/* Wave SVG separator */}
       <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
-        <motion.svg
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.8 }}
+        <svg
           className="relative block h-12 w-full sm:h-16"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 1200 120"
           preserveAspectRatio="none"
         >
-          <motion.path
+          <path
             d="M0,40 C150,80 350,0 500,40 C650,80 800,20 1000,50 C1100,65 1150,40 1200,45 L1200,120 L0,120 Z"
             fill="white"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
           />
-          <motion.path
+          <path
             d="M0,60 C200,20 400,90 600,50 C800,10 1000,70 1200,40 L1200,120 L0,120 Z"
             fill="white"
             fillOpacity="0.5"
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 1.5, delay: 0.7, ease: "easeOut" }}
           />
-        </motion.svg>
+        </svg>
       </div>
     </section>
   );

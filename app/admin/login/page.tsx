@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { Lock, Mail } from "lucide-react";
+import { SITE } from "@/lib/site-config";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
@@ -17,13 +17,13 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError("");
 
-    const supabase = createClient();
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
     });
 
-    if (authError) {
+    if (!res.ok) {
       setError("Invalid email or password");
       setLoading(false);
       return;
@@ -57,7 +57,7 @@ export default function AdminLoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-[#E8476C] focus:ring-1 focus:ring-[#E8476C]"
-                  placeholder="admin@humanityandblessings.com"
+                  placeholder={SITE.contact.email}
                 />
               </div>
             </div>

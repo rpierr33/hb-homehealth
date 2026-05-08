@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Phone, Mail, MapPin, ArrowRight } from "lucide-react";
+import { Phone, Mail, MapPin, ArrowRight, Printer } from "lucide-react";
+import { SITE } from "@/lib/site-config";
 
 export function Footer() {
   return (
@@ -37,24 +38,7 @@ export function Footer() {
                 proudly serving Broward County, FL since 2021.
               </p>
 
-              {/* Social Media Links */}
-              <div className="mt-6 flex flex-wrap gap-3">
-                {[
-                  { label: "Facebook", href: "https://facebook.com" },
-                  { label: "Instagram", href: "https://instagram.com" },
-                  { label: "LinkedIn", href: "https://linkedin.com" },
-                ].map((social) => (
-                  <a
-                    key={social.label}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block rounded-full border border-gray-600 px-4 py-1.5 text-xs font-semibold tracking-wide text-gray-300 transition-all duration-300 hover:border-primary hover:bg-primary/10 hover:text-white hover:shadow-[0_0_12px_rgba(232,71,108,0.25)]"
-                  >
-                    {social.label}
-                  </a>
-                ))}
-              </div>
+              {/* Social Media Links — hidden until accounts are active */}
             </div>
 
             {/* Quick Links */}
@@ -119,40 +103,44 @@ export function Footer() {
                 <li className="flex items-start gap-3">
                   <MapPin size={18} className="mt-0.5 shrink-0 text-secondary" />
                   <span className="text-sm text-gray-300">
-                    Oakland Park, FL 33334
+                    {SITE.address.fullLine}
                   </span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Phone size={18} className="shrink-0 text-secondary" />
                   <a
-                    href="tel:9545550123"
+                    href={`tel:${SITE.contact.phone.tel}`}
                     className="group relative inline-block text-sm text-gray-300 transition-colors duration-300 hover:text-white"
                   >
-                    (954) 555-0123
+                    {SITE.contact.phone.display}
                     <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-secondary transition-all duration-300 group-hover:w-full" />
                   </a>
                 </li>
                 <li className="flex items-center gap-3">
                   <Mail size={18} className="shrink-0 text-secondary" />
                   <a
-                    href="mailto:support@humanityandblessings.com"
+                    href={`mailto:${SITE.contact.email}`}
                     className="group relative inline-block text-sm text-gray-300 transition-colors duration-300 hover:text-white"
                   >
-                    support@humanityandblessings.com
+                    {SITE.contact.email}
                     <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-secondary transition-all duration-300 group-hover:w-full" />
                   </a>
                 </li>
+                <li className="flex items-center gap-3">
+                  <Printer size={18} className="shrink-0 text-secondary" />
+                  <span className="text-sm text-gray-300">
+                    Fax: {SITE.contact.fax.display}
+                  </span>
+                </li>
               </ul>
               <div className="mt-5">
-                <p className="text-sm text-gray-400">
-                  <strong className="text-gray-300">Hours:</strong>
-                  <br />
-                  Mon&ndash;Fri: 9:00 AM &ndash; 5:00 PM EST
-                  <br />
-                  Sat: Upon Request
-                  <br />
-                  Sun: Closed
-                </p>
+                <p className="mb-2 text-sm font-semibold text-gray-300">Hours</p>
+                <div className="space-y-1.5 text-sm text-gray-400">
+                  <p><span className="text-gray-300">Office</span><br />Mon&ndash;Fri &middot; 7:00 AM &ndash; 3:00 PM</p>
+                  <p><span className="text-gray-300">Operations</span><br />Mon&ndash;Fri &middot; 7:00 AM &ndash; 6:00 PM</p>
+                  <p>Sat &middot; Upon Request</p>
+                  <p>Sun &middot; Closed</p>
+                </div>
               </div>
 
               {/* Service Areas */}
@@ -170,11 +158,19 @@ export function Footer() {
           </div>
 
           {/* Bottom bar */}
-          <div className="mt-14 border-t border-gray-700/60 pt-8 text-center">
-            <p className="text-sm text-gray-500">
-              &copy; {new Date().getFullYear()} Humanity &amp; Blessings Home
-              Health. All rights reserved.
-            </p>
+          <div className="mt-14 border-t border-gray-700/60 pt-8">
+            <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
+              <p className="text-sm text-gray-500">
+                &copy; {new Date().getFullYear()} Humanity &amp; Blessings Home
+                Health. All rights reserved.
+              </p>
+              <div className="flex items-center gap-4 text-sm text-gray-500">
+                <span>AHCA License #{SITE.company.ahcaLicense}</span>
+                <Link href="/privacy" className="hover:text-gray-300 transition-colors">
+                  Privacy Policy
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </div>

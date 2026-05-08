@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { db } from "@/lib/db";
+import { referrals } from "@/lib/db/schema";
 import { sendConfirmationEmail, sendNotificationEmail } from "@/lib/email/templates";
 import { z } from "zod/v4";
 import { referralSchema } from "@/lib/validations/schemas";
@@ -19,19 +20,17 @@ export async function POST(request: Request) {
     const data = referralSchema.parse(body);
     const safe = sanitizeObject(data);
 
-    const supabase = createAdminClient();
-
-    const { error: dbError } = await supabase.from("referrals").insert({
-      referrer_name: safe.referrerName,
-      referrer_phone: safe.referrerPhone,
-      referrer_email: safe.referrerEmail,
-      patient_name: safe.patientName,
-      patient_phone: safe.patientPhone,
-      service_needed: safe.serviceNeeded,
-      notes: safe.notes || null,
-    });
-
-    if (dbError) {
+    try {
+      await db.insert(referrals).values({
+        referrerName: safe.referrerName,
+        referrerPhone: safe.referrerPhone,
+        referrerEmail: safe.referrerEmail,
+        patientName: safe.patientName,
+        patientPhone: safe.patientPhone,
+        serviceNeeded: safe.serviceNeeded,
+        notes: safe.additionalNotes || safe.notes || null,
+      });
+    } catch (dbError) {
       console.error("Database error:", dbError);
       return NextResponse.json({ error: "Failed to save" }, { status: 500 });
     }
@@ -52,7 +51,7 @@ export async function POST(request: Request) {
             patientName: safe.patientName,
             patientPhone: safe.patientPhone,
             serviceNeeded: safe.serviceNeeded,
-            notes: safe.notes,
+            notes: safe.additionalNotes || safe.notes,
           },
         }),
       ]);

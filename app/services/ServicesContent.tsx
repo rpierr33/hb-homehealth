@@ -255,6 +255,33 @@ export function ServicesContent() {
         </div>
       </section>
 
+      {/* Learn More Links */}
+      <section className="bg-white py-16">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="font-display text-2xl font-bold text-neutral-dark mb-8">
+            Learn More About Our Services
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Link href="/services/cna-hha" className="rounded-xl border border-gray-200 p-5 text-left hover:shadow-md transition-shadow">
+              <h3 className="font-semibold text-neutral-dark">CNA &amp; HHA Services</h3>
+              <p className="mt-1 text-sm text-neutral-mid">Personal care, bathing, meal prep, medication reminders &amp; more</p>
+            </Link>
+            <Link href="/services/rn-lpn" className="rounded-xl border border-gray-200 p-5 text-left hover:shadow-md transition-shadow">
+              <h3 className="font-semibold text-neutral-dark">RN &amp; LPN Services</h3>
+              <p className="mt-1 text-sm text-neutral-mid">Wound care, IV therapy, ventilators, post-surgical care</p>
+            </Link>
+            <Link href="/services/companion-sitter" className="rounded-xl border border-gray-200 p-5 text-left hover:shadow-md transition-shadow">
+              <h3 className="font-semibold text-neutral-dark">Companion &amp; Sitter Services</h3>
+              <p className="mt-1 text-sm text-neutral-mid">Companionship, safety supervision, respite care</p>
+            </Link>
+            <Link href="/services/skilled-nursing" className="rounded-xl border border-gray-200 p-5 text-left hover:shadow-md transition-shadow">
+              <h3 className="font-semibold text-neutral-dark">Skilled Nursing &amp; Home Health</h3>
+              <p className="mt-1 text-sm text-neutral-mid">Care plans, chronic disease management, rehab support</p>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="bg-primary py-16">
         <div className="mx-auto max-w-3xl px-4 text-center text-white sm:px-6 lg:px-8">

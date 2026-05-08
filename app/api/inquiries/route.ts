@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { db } from "@/lib/db";
+import { inquiries } from "@/lib/db/schema";
 import { sendConfirmationEmail, sendNotificationEmail } from "@/lib/email/templates";
 import { z } from "zod/v4";
 import { contactSchema } from "@/lib/validations/schemas";
@@ -19,18 +20,16 @@ export async function POST(request: Request) {
     const data = contactSchema.parse(body);
     const safe = sanitizeObject(data);
 
-    const supabase = createAdminClient();
-
-    const { error: dbError } = await supabase.from("inquiries").insert({
-      first_name: safe.firstName,
-      last_name: safe.lastName,
-      email: safe.email,
-      phone: safe.phone,
-      service_needed: safe.serviceNeeded,
-      message: safe.message || null,
-    });
-
-    if (dbError) {
+    try {
+      await db.insert(inquiries).values({
+        firstName: safe.firstName,
+        lastName: safe.lastName,
+        email: safe.email,
+        phone: safe.phone,
+        serviceNeeded: safe.serviceNeeded,
+        message: safe.message || null,
+      });
+    } catch (dbError) {
       console.error("Database error:", dbError);
       return NextResponse.json({ error: "Failed to save" }, { status: 500 });
     }

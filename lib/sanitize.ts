@@ -4,11 +4,10 @@ const UNSAFE_CHARS: Record<string, string> = {
   ">": "&gt;",
   '"': "&quot;",
   "'": "&#x27;",
-  "/": "&#x2F;",
 };
 
 export function sanitizeHtml(str: string): string {
-  return str.replace(/[&<>"'/]/g, (char) => UNSAFE_CHARS[char] || char);
+  return str.replace(/[&<>"']/g, (char) => UNSAFE_CHARS[char] || char);
 }
 
 export function sanitizeObject<T extends Record<string, unknown>>(obj: T): T {

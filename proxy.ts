@@ -1,6 +1,9 @@
-import { createServerClient } from "@supabase/ssr";
+import { jwtVerify } from "jose";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+
+const SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
+const COOKIE_NAME = "hb_admin_token";
 
 export async function proxy(request: NextRequest) {
   const response = NextResponse.next({
@@ -22,28 +25,16 @@ export async function proxy(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/admin") &&
     !request.nextUrl.pathname.startsWith("/admin/login")
   ) {
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll();
-          },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) => {
-              response.cookies.set(name, value, options);
-            });
-          },
-        },
-      }
-    );
+    const token = request.cookies.get(COOKIE_NAME)?.value;
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    if (!token) {
+      const loginUrl = new URL("/admin/login", request.url);
+      return NextResponse.redirect(loginUrl);
+    }
 
-    if (!user) {
+    try {
+      await jwtVerify(token, SECRET);
+    } catch {
       const loginUrl = new URL("/admin/login", request.url);
       return NextResponse.redirect(loginUrl);
     }

@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ExternalLink, BookOpen } from "lucide-react";
+import { SITE } from "@/lib/site-config";
 
 const resources = [
   {
@@ -97,17 +98,17 @@ export function ResourcesContent() {
               If you have questions about home health care services, eligibility,
               or how to get started, our team is here to help. Contact us at{" "}
               <a
-                href="tel:9545550123"
+                href={`tel:${SITE.contact.phone.tel}`}
                 className="font-semibold text-primary hover:underline"
               >
-                (954) 555-0123
+                {SITE.contact.phone.display}
               </a>{" "}
               or email{" "}
               <a
-                href="mailto:support@humanityandblessings.com"
+                href={`mailto:${SITE.contact.email}`}
                 className="font-semibold text-primary hover:underline"
               >
-                support@humanityandblessings.com
+                {SITE.contact.email}
               </a>
               .
             </p>

@@ -1,7 +1,4 @@
-"use client";
-
 import { MapPin } from "lucide-react";
-import { useEffect, useRef } from "react";
 
 const serviceAreas = [
   "Parkland",
@@ -18,46 +15,6 @@ const serviceAreas = [
 const scrollItems = [...serviceAreas, ...serviceAreas];
 
 export function ServiceAreas() {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const animationRef = useRef<number | null>(null);
-  const positionRef = useRef(0);
-
-  useEffect(() => {
-    const container = scrollRef.current;
-    if (!container) return;
-
-    const speed = 0.5; // pixels per frame
-
-    const animate = () => {
-      positionRef.current += speed;
-      // Reset when first set scrolls out of view
-      const halfWidth = container.scrollWidth / 2;
-      if (positionRef.current >= halfWidth) {
-        positionRef.current = 0;
-      }
-      container.style.transform = `translateX(-${positionRef.current}px)`;
-      animationRef.current = requestAnimationFrame(animate);
-    };
-
-    animationRef.current = requestAnimationFrame(animate);
-
-    const handleMouseEnter = () => {
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
-    };
-    const handleMouseLeave = () => {
-      animationRef.current = requestAnimationFrame(animate);
-    };
-
-    container.addEventListener("mouseenter", handleMouseEnter);
-    container.addEventListener("mouseleave", handleMouseLeave);
-
-    return () => {
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
-      container.removeEventListener("mouseenter", handleMouseEnter);
-      container.removeEventListener("mouseleave", handleMouseLeave);
-    };
-  }, []);
-
   return (
     <section className="border-y border-gray-100 bg-neutral-light py-8 overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -77,7 +34,7 @@ export function ServiceAreas() {
         <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-24 bg-gradient-to-l from-neutral-light to-transparent" />
 
         <div className="overflow-hidden">
-          <div ref={scrollRef} className="flex w-max gap-5 will-change-transform">
+          <div className="flex w-max gap-5 animate-marquee hover:[animation-play-state:paused]">
             {scrollItems.map((name, i) => (
               <span
                 key={`${name}-${i}`}

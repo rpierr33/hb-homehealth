@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   turbopack: {
@@ -19,12 +20,12 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "font-src 'self' https://fonts.gstatic.com",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://embed.tawk.to https://va.tawk.to https://cdn.jsdelivr.net",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://embed.tawk.to",
+              "font-src 'self' https://fonts.gstatic.com https://embed.tawk.to",
               "img-src 'self' data: blob: https:",
-              "frame-src https://www.google.com https://growtherapy.com https://headway.co",
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+              "frame-src https://www.google.com https://growtherapy.com https://headway.co https://tawk.to https://*.tawk.to",
+              "connect-src 'self' https://*.ingest.sentry.io https://*.google-analytics.com https://*.tawk.to wss://*.tawk.to",
             ].join("; "),
           },
         ],
@@ -33,4 +34,9 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  org: "kalocode",
+  project: "hb-homehealth",
+  silent: true,
+  sourcemaps: { disable: true },
+});

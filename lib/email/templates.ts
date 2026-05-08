@@ -1,7 +1,9 @@
 import { Resend } from 'resend';
+import { sanitizeHtml } from '@/lib/sanitize';
+import { SITE } from '@/lib/site-config';
 
-const FROM_EMAIL = 'Humanity & Blessings Home Health <onboarding@resend.dev>';
-const NOTIFICATION_EMAIL = process.env.NOTIFICATION_EMAIL || 'support@humanityandblessings.com';
+const FROM_EMAIL = SITE.contact.emailFromHeader;
+const NOTIFICATION_EMAIL = process.env.NOTIFICATION_EMAIL || SITE.contact.email;
 
 function getResend() {
   return new Resend(process.env.RESEND_API_KEY);
@@ -13,9 +15,9 @@ export async function sendConfirmationEmail(data: {
   type: 'inquiry' | 'referral' | 'application';
 }) {
   const subjectMap = {
-    inquiry: 'We Received Your Inquiry — Humanity & Blessings Home Health',
-    referral: 'Your Referral Has Been Received — Humanity & Blessings Home Health',
-    application: 'Application Received — Humanity & Blessings Home Health',
+    inquiry: `We Received Your Inquiry — ${SITE.company.name}`,
+    referral: `Your Referral Has Been Received — ${SITE.company.name}`,
+    application: `Application Received — ${SITE.company.name}`,
   };
 
   const bodyMap = {
@@ -41,13 +43,13 @@ export async function sendConfirmationEmail(data: {
           ${bodyMap[data.type]}
         </p>
         <p style="color: #6B7280; font-size: 14px; line-height: 1.6; margin-top: 24px;">
-          If you need immediate assistance, please call us at <strong>(954) 555-0123</strong>.
+          If you need immediate assistance, please call us at <strong>${SITE.contact.phone.display}</strong>.
         </p>
         <hr style="border: none; border-top: 1px solid #FCE4EC; margin: 32px 0;" />
         <p style="color: #6B7280; font-size: 12px;">
-          Humanity &amp; Blessings Home Health<br />
-          Oakland Park, FL 33334<br />
-          support@humanityandblessings.com
+          ${SITE.company.name}<br />
+          ${SITE.address.fullLine}<br />
+          ${SITE.contact.email}
         </p>
       </div>
     `,
@@ -58,13 +60,17 @@ export async function sendNotificationEmail(data: {
   type: 'inquiry' | 'referral' | 'application';
   details: Record<string, string | undefined>;
 }) {
+  const safe = Object.fromEntries(
+    Object.entries(data.details).map(([k, v]) => [k, v ? sanitizeHtml(v) : v])
+  );
+
   const subjectMap = {
-    inquiry: `New Inquiry: ${data.details.firstName} ${data.details.lastName}`,
-    referral: `New Referral: ${data.details.patientName} (from ${data.details.referrerName})`,
-    application: `New Application: ${data.details.firstName} ${data.details.lastName}`,
+    inquiry: `New Inquiry: ${(safe.firstName || '').replace(/[\r\n]/g, '')} ${(safe.lastName || '').replace(/[\r\n]/g, '')}`,
+    referral: `New Referral: ${(safe.patientName || '').replace(/[\r\n]/g, '')} (from ${(safe.referrerName || '').replace(/[\r\n]/g, '')})`,
+    application: `New Application: ${(safe.firstName || '').replace(/[\r\n]/g, '')} ${(safe.lastName || '').replace(/[\r\n]/g, '')}`,
   };
 
-  const rows = Object.entries(data.details)
+  const rows = Object.entries(safe)
     .filter(([, val]) => val !== undefined && val !== '')
     .map(
       ([key, val]) =>

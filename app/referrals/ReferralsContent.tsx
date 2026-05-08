@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Send, CheckCircle, Phone, UserPlus } from "lucide-react";
+import { SITE } from "@/lib/site-config";
 
 interface ReferralFormData {
   referrerName: string;
@@ -47,10 +48,10 @@ export function ReferralsContent() {
       if (res.ok) {
         setSubmitted(true);
       } else {
-        setError("Something went wrong. Please try again or call us directly at (954) 555-0123.");
+        setError(`Something went wrong. Please try again or call us directly at ${SITE.contact.phone.display}.`);
       }
     } catch {
-      setError("Something went wrong. Please try again or call us directly at (954) 555-0123.");
+      setError(`Something went wrong. Please try again or call us directly at ${SITE.contact.phone.display}.`);
     } finally {
       setSubmitting(false);
     }
@@ -91,12 +92,12 @@ export function ReferralsContent() {
               <p className="text-neutral-mid">
                 Call us at{" "}
                 <a
-                  href="tel:9545550123"
+                  href={`tel:${SITE.contact.phone.tel}`}
                   className="font-semibold text-accent hover:underline"
                 >
-                  (954) 555-0123
+                  {SITE.contact.phone.display}
                 </a>{" "}
-                during business hours (Mon&ndash;Fri, 9 AM &ndash; 5 PM).
+                during business hours (Mon&ndash;Fri, 7 AM &ndash; 6 PM).
               </p>
             </div>
           </div>
@@ -260,6 +261,7 @@ export function ReferralsContent() {
                         Companion / Sitter
                       </option>
                       <option value="Skilled Nursing">Skilled Nursing</option>
+                      <option value="Not Sure">Not sure — need guidance</option>
                       <option value="Other">Other</option>
                     </select>
                   </div>

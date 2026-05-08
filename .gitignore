@@ -32,9 +32,16 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
+
+# claude code local settings
+.claude/settings.local.json
+
+# playwright/mcp local snapshots
+.playwright-mcp/
 
 # typescript
 *.tsbuildinfo

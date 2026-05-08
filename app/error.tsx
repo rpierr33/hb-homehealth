@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { SITE } from "@/lib/site-config";
 
 export default function Error({
   error,
@@ -30,10 +31,10 @@ export default function Error({
           Try Again
         </button>
         <a
-          href="tel:9545550123"
+          href={`tel:${SITE.contact.phone.tel}`}
           className="rounded-full border-2 border-[#E8476C] px-6 py-3 text-sm font-semibold text-[#E8476C] transition-all hover:bg-[#E8476C] hover:text-white"
         >
-          Call (954) 555-0123
+          Call {SITE.contact.phone.display}
         </a>
       </div>
     </div>

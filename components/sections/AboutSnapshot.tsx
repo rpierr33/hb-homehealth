@@ -108,7 +108,7 @@ export function AboutSnapshot() {
               className="relative aspect-[4/3] overflow-hidden rounded-2xl"
             >
               <Image
-                src="/images/about-care.jpg"
+                src="/images/about-snapshot.jpg"
                 alt="Caregiver holding hands with elderly patient"
                 fill
                 className="object-cover"
