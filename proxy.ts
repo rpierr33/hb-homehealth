@@ -3,40 +3,56 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
-const COOKIE_NAME = "hb_admin_token";
+const ADMIN_COOKIE = "hb_admin_token";
+const CAREGIVER_COOKIE = "hb_caregiver_token";
 
 export async function proxy(request: NextRequest) {
   const response = NextResponse.next({
     request: { headers: request.headers },
   });
 
-  // Add security headers
+  const { pathname } = request.nextUrl;
+  const isCaregiverRoute = pathname.startsWith("/caregiver");
+
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set("X-DNS-Prefetch-Control", "on");
+  // Allow geolocation on caregiver routes only — EVV clock-in/out needs it.
   response.headers.set(
     "Permissions-Policy",
-    "camera=(), microphone=(), geolocation=()"
+    isCaregiverRoute
+      ? "camera=(), microphone=(), geolocation=(self)"
+      : "camera=(), microphone=(), geolocation=()"
   );
 
-  // Only check auth for admin routes (not login)
   if (
-    request.nextUrl.pathname.startsWith("/admin") &&
-    !request.nextUrl.pathname.startsWith("/admin/login")
+    pathname.startsWith("/admin") &&
+    !pathname.startsWith("/admin/login")
   ) {
-    const token = request.cookies.get(COOKIE_NAME)?.value;
-
+    const token = request.cookies.get(ADMIN_COOKIE)?.value;
     if (!token) {
-      const loginUrl = new URL("/admin/login", request.url);
-      return NextResponse.redirect(loginUrl);
+      return NextResponse.redirect(new URL("/admin/login", request.url));
     }
-
     try {
       await jwtVerify(token, SECRET);
     } catch {
-      const loginUrl = new URL("/admin/login", request.url);
-      return NextResponse.redirect(loginUrl);
+      return NextResponse.redirect(new URL("/admin/login", request.url));
+    }
+  }
+
+  if (isCaregiverRoute && !pathname.startsWith("/caregiver/login")) {
+    const token = request.cookies.get(CAREGIVER_COOKIE)?.value;
+    if (!token) {
+      return NextResponse.redirect(new URL("/caregiver/login", request.url));
+    }
+    try {
+      const { payload } = await jwtVerify(token, SECRET);
+      if (payload.role !== "caregiver") {
+        return NextResponse.redirect(new URL("/caregiver/login", request.url));
+      }
+    } catch {
+      return NextResponse.redirect(new URL("/caregiver/login", request.url));
     }
   }
 
