@@ -1,7 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Clock, LogIn, LogOut, MapPin, Loader2 } from "lucide-react";
+import {
+  Clock,
+  LogIn,
+  LogOut,
+  MapPin,
+  Loader2,
+  ListChecks,
+  PenLine,
+  CheckCircle2,
+} from "lucide-react";
+import { TASKS } from "@/lib/caregiver-tasks";
+import SignaturePadModal from "./SignaturePadModal";
 
 type DayState = {
   day: string;
@@ -11,7 +22,11 @@ type DayState = {
   totalHours: string | null;
   clockInLat: string | null;
   clockInLng: string | null;
+  patientSignedAt: string | null;
+  patientSignedByName: string | null;
 };
+
+type TaskState = Record<string, { checked: boolean; customLabel: string | null }>;
 
 const DAY_LABELS: Record<string, string> = {
   mon: "Monday",
@@ -25,27 +40,32 @@ const DAY_LABELS: Record<string, string> = {
 
 function fmtTime(iso: string | null) {
   if (!iso) return "—";
-  const d = new Date(iso);
-  return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  return new Date(iso).toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }
 
 function isToday(serviceDate: string) {
-  const today = new Date().toISOString().slice(0, 10);
-  return serviceDate === today;
+  return serviceDate === new Date().toISOString().slice(0, 10);
 }
 
 export default function DayCard({
   visitLogId,
   initial,
+  initialTasks,
   locked,
 }: {
   visitLogId: string;
   initial: DayState;
+  initialTasks: TaskState;
   locked: boolean;
 }) {
   const [state, setState] = useState(initial);
+  const [tasks, setTasks] = useState<TaskState>(initialTasks);
   const [busy, setBusy] = useState<"in" | "out" | null>(null);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState("");
+  const [sigOpen, setSigOpen] = useState(false);
 
   const isFuture = state.serviceDate > new Date().toISOString().slice(0, 10);
   const today = isToday(state.serviceDate);
@@ -64,7 +84,6 @@ export default function DayCard({
     let lat: number | null = null;
     let lng: number | null = null;
     let accuracy: number | null = null;
-
     if ("geolocation" in navigator) {
       try {
         const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
@@ -78,7 +97,7 @@ export default function DayCard({
         lng = pos.coords.longitude;
         accuracy = pos.coords.accuracy;
       } catch {
-        // continue without GPS; server will record nulls
+        /* continue without GPS */
       }
     }
 
@@ -100,6 +119,54 @@ export default function DayCard({
     setState((prev) => ({ ...prev, ...data }));
     setBusy(null);
   };
+
+  const toggleTask = async (taskKey: string) => {
+    const current = tasks[taskKey] ?? { checked: false, customLabel: null };
+    const next = { ...current, checked: !current.checked };
+
+    // Optimistic local update
+    setTasks((prev) => ({ ...prev, [taskKey]: next }));
+
+    const res = await fetch(
+      `/api/caregiver/visits/${visitLogId}/days/${state.day}/tasks`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          taskKey,
+          checked: next.checked,
+          customLabel: next.customLabel ?? undefined,
+        }),
+      }
+    );
+    if (!res.ok) {
+      setTasks((prev) => ({ ...prev, [taskKey]: current })); // revert
+      const body = await res.json().catch(() => ({}));
+      setError(body.error || "Could not save task.");
+    }
+  };
+
+  const updateCustomLabel = async (taskKey: string, label: string) => {
+    const current = tasks[taskKey] ?? { checked: false, customLabel: null };
+    const next = { ...current, customLabel: label || null };
+    setTasks((prev) => ({ ...prev, [taskKey]: next }));
+
+    await fetch(
+      `/api/caregiver/visits/${visitLogId}/days/${state.day}/tasks`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          taskKey,
+          checked: next.checked,
+          customLabel: label || undefined,
+        }),
+      }
+    );
+  };
+
+  const showTasks = state.clockInAt !== null && !isFuture;
+  const tasksChecked = Object.values(tasks).filter((t) => t.checked).length;
 
   return (
     <div
@@ -211,13 +278,127 @@ export default function DayCard({
               {busy === "out" ? "Capturing GPS…" : "Clock Out"}
             </button>
           )}
-          {state.clockInAt && state.clockOutAt && (
-            <p className="flex-1 text-center text-xs text-neutral-mid">
-              <Clock size={11} className="inline mb-0.5" /> Tasks &amp; patient
-              signature: coming next
-            </p>
+          {state.clockInAt &&
+            state.clockOutAt &&
+            !state.patientSignedAt && (
+              <button
+                onClick={() => setSigOpen(true)}
+                className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full bg-[#E8476C] py-2 text-xs font-semibold text-white transition-all hover:bg-[#c73a5a]"
+              >
+                <PenLine size={12} />
+                Get patient signature
+              </button>
+            )}
+          {state.patientSignedAt && (
+            <div className="flex-1 rounded-lg border border-green-200 bg-white px-3 py-2 text-xs">
+              <p className="flex items-center gap-1 font-medium text-green-800">
+                <CheckCircle2 size={12} /> Signed by {state.patientSignedByName}
+              </p>
+              <p className="text-[10px] text-neutral-mid">
+                <Clock size={9} className="inline mb-0.5" />{" "}
+                {new Date(state.patientSignedAt).toLocaleString([], {
+                  month: "short",
+                  day: "numeric",
+                  hour: "numeric",
+                  minute: "2-digit",
+                })}
+              </p>
+            </div>
           )}
         </div>
+      )}
+
+      <SignaturePadModal
+        open={sigOpen}
+        onClose={() => setSigOpen(false)}
+        title={`Patient signature — ${DAY_LABELS[state.day]}`}
+        subtitle={`Service date: ${state.serviceDate}`}
+        consentText="I confirm this is my signature and that the services described were performed on this date."
+        saveLabel="Save signature"
+        onSave={async ({ pngDataUrl, svgString, signedByName }) => {
+          const res = await fetch(
+            `/api/caregiver/visits/${visitLogId}/days/${state.day}/patient-signature`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                signaturePng: pngDataUrl,
+                signatureSvg: svgString,
+                signedByName,
+              }),
+            }
+          );
+          if (!res.ok) {
+            const body = await res.json().catch(() => ({}));
+            throw new Error(body.error || "Could not save signature.");
+          }
+          const data = await res.json();
+          setState((prev) => ({
+            ...prev,
+            patientSignedAt: data.signedAt,
+            patientSignedByName: data.signedByName,
+          }));
+          setSigOpen(false);
+        }}
+      />
+
+      {showTasks && (
+        <details className="mt-3 group" open>
+          <summary className="flex cursor-pointer items-center gap-2 text-xs font-semibold uppercase tracking-wider text-neutral-mid">
+            <ListChecks size={12} />
+            Tasks performed
+            <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-neutral-dark">
+              {tasksChecked}
+            </span>
+          </summary>
+          <div className="mt-3 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+            {TASKS.map((t) => {
+              const task = tasks[t.key] ?? { checked: false, customLabel: null };
+              const isCustom = "custom" in t && t.custom;
+              return (
+                <label
+                  key={t.key}
+                  className={`flex cursor-pointer items-start gap-2 rounded-lg border p-2 text-xs transition-all ${
+                    task.checked
+                      ? "border-[#E8476C] bg-white"
+                      : "border-gray-200 bg-white hover:border-gray-300"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={task.checked}
+                    onChange={() => toggleTask(t.key)}
+                    disabled={locked}
+                    className="mt-0.5 h-3.5 w-3.5 rounded border-gray-300 text-[#E8476C] focus:ring-[#E8476C]"
+                  />
+                  <span className="flex-1">
+                    {isCustom ? (
+                      <input
+                        type="text"
+                        value={task.customLabel ?? ""}
+                        onChange={(e) =>
+                          updateCustomLabel(t.key, e.target.value)
+                        }
+                        placeholder={t.en}
+                        disabled={locked}
+                        className="w-full border-b border-dashed border-gray-300 bg-transparent text-xs focus:border-[#E8476C] focus:outline-none"
+                      />
+                    ) : (
+                      <>
+                        <span className="font-medium text-neutral-dark">
+                          {t.en}
+                        </span>
+                        <span className="block text-[10px] italic text-neutral-mid">
+                          {t.es}
+                        </span>
+                      </>
+                    )}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        </details>
       )}
     </div>
   );

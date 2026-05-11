@@ -1,12 +1,13 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, Send } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { getCaregiverFromCookie } from "@/lib/caregiver-auth";
 import { db } from "@/lib/db";
-import { visitLogs, visitLogDays } from "@/lib/db/schema";
+import { visitLogs, visitLogDays, visitLogTasks } from "@/lib/db/schema";
 import { and, eq, asc } from "drizzle-orm";
 import { DAYS_OF_WEEK } from "@/lib/caregiver-tasks";
 import DayCard from "./_components/DayCard";
+import SubmitWeekPanel, { SubmittedBanner } from "./_components/SubmitWeekPanel";
 
 export const metadata = {
   title: "Weekly Visit Log",
@@ -29,19 +30,36 @@ export default async function WeeklyLogPage({
     .limit(1);
   if (!log) notFound();
 
-  const days = await db
-    .select()
-    .from(visitLogDays)
-    .where(eq(visitLogDays.visitLogId, id))
-    .orderBy(asc(visitLogDays.serviceDate));
+  const [days, taskRows] = await Promise.all([
+    db
+      .select()
+      .from(visitLogDays)
+      .where(eq(visitLogDays.visitLogId, id))
+      .orderBy(asc(visitLogDays.serviceDate)),
+    db
+      .select()
+      .from(visitLogTasks)
+      .where(eq(visitLogTasks.visitLogId, id)),
+  ]);
 
   const byDay = new Map(days.map((d) => [d.dayOfWeek, d]));
+  const tasksByDay: Record<string, Record<string, { checked: boolean; customLabel: string | null }>> = {};
+  for (const t of taskRows) {
+    if (!tasksByDay[t.dayOfWeek]) tasksByDay[t.dayOfWeek] = {};
+    tasksByDay[t.dayOfWeek][t.taskKey] = {
+      checked: t.checked ?? false,
+      customLabel: t.taskLabelCustom ?? null,
+    };
+  }
   const locked = log.status !== "draft";
 
   const daysComplete = days.filter(
     (d) => d.clockInAt && d.clockOutAt
   ).length;
   const daysStarted = days.filter((d) => d.clockInAt).length;
+  const daysReadyToSubmit = days.filter(
+    (d) => d.clockInAt && d.clockOutAt && d.patientSignatureAt
+  ).length;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -114,37 +132,29 @@ export default async function WeeklyLogPage({
                 totalHours: d.totalHours,
                 clockInLat: d.clockInLat,
                 clockInLng: d.clockInLng,
+                patientSignedAt: d.patientSignatureAt
+                  ? new Date(d.patientSignatureAt).toISOString()
+                  : null,
+                patientSignedByName: d.patientSignedByName,
               }}
+              initialTasks={tasksByDay[d.dayOfWeek] ?? {}}
             />
           );
         })}
       </div>
 
       {!locked && (
-        <div className="mt-6 rounded-2xl border border-gray-200 bg-white p-5">
-          <h2 className="font-semibold text-neutral-dark">Submit this week</h2>
-          <p className="mt-1 text-sm text-neutral-mid">
-            {daysComplete === 7
-              ? "All 7 days are complete. Ready to submit."
-              : daysStarted === 0
-                ? "Start by clocking in on a day card above."
-                : `${daysComplete} of 7 days complete, ${daysStarted} started. You can submit a partial week — empty days will be treated as days you didn't work.`}
-          </p>
-          <button
-            type="button"
-            disabled={daysComplete === 0}
-            className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#E8476C] px-5 py-2 text-sm font-semibold text-white transition-all hover:bg-[#c73a5a] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <Send size={14} />
-            {daysComplete === 7
-              ? "Submit Week"
-              : `Submit Week (${daysComplete} of 7 days)`}
-          </button>
-          <p className="mt-2 text-xs text-neutral-mid">
-            Final attestation + caregiver signature is on the next screen.
-            (Submit flow is Phase 1B-5 — not yet wired up.)
-          </p>
-        </div>
+        <SubmitWeekPanel
+          visitLogId={id}
+          daysComplete={daysComplete}
+          daysStarted={daysStarted}
+          daysReadyToSubmit={daysReadyToSubmit}
+          totalDays={7}
+        />
+      )}
+
+      {locked && log.submittedAt && (
+        <SubmittedBanner submittedAt={new Date(log.submittedAt).toISOString()} />
       )}
     </div>
   );
