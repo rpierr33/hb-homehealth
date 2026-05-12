@@ -4,8 +4,9 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Users, FileDown, RefreshCw, Inbox, Heart, Briefcase, Megaphone,
-  X, Trash2, ChevronDown,
+  X, Trash2, ChevronDown, ClipboardList,
 } from "lucide-react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 type TabKey = "leads" | "inquiries" | "referrals" | "applications";
@@ -333,12 +334,20 @@ export default function AdminDashboard() {
           <h1 className="font-display text-3xl font-bold text-neutral-dark">Admin Dashboard</h1>
           <p className="text-sm text-neutral-mid">H&amp;B Home Health — Manage all submissions</p>
         </div>
-        <button
-          onClick={handleSignOut}
-          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-neutral-mid hover:text-red-500"
-        >
-          Sign Out
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/admin/visits"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[#E8476C] px-4 py-2 text-sm font-medium text-white hover:bg-[#c73a5a]"
+          >
+            <ClipboardList size={14} /> Visit Logs
+          </Link>
+          <button
+            onClick={handleSignOut}
+            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-neutral-mid hover:text-red-500"
+          >
+            Sign Out
+          </button>
+        </div>
       </div>
 
       {/* Summary Cards */}
