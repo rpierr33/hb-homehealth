@@ -5,10 +5,16 @@ import { db } from "@/lib/db";
 import { adminUsers } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
-if (!process.env.JWT_SECRET) {
-  throw new Error("JWT_SECRET environment variable is required");
+// Lazy: throw at first use, not at module load (so preview builds without
+// JWT_SECRET don't crash during "Collect page data" step).
+let _secret: Uint8Array | null = null;
+function getSecret(): Uint8Array {
+  if (_secret) return _secret;
+  const s = process.env.JWT_SECRET;
+  if (!s) throw new Error("JWT_SECRET environment variable is required");
+  _secret = new TextEncoder().encode(s);
+  return _secret;
 }
-const SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 const COOKIE_NAME = "hb_admin_token";
 
 export async function hashPassword(password: string) {
@@ -24,12 +30,12 @@ export async function createToken(userId: string, email: string) {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("7d")
-    .sign(SECRET);
+    .sign(getSecret());
 }
 
 export async function verifyToken(token: string) {
   try {
-    const { payload } = await jwtVerify(token, SECRET);
+    const { payload } = await jwtVerify(token, getSecret());
     return payload as { sub: string; email: string };
   } catch {
     return null;

@@ -5,10 +5,15 @@ import { db } from "@/lib/db";
 import { caregivers } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 
-if (!process.env.JWT_SECRET) {
-  throw new Error("JWT_SECRET environment variable is required");
+// Lazy — see lib/auth.ts for rationale (build-safe preview deploys).
+let _secret: Uint8Array | null = null;
+function getSecret(): Uint8Array {
+  if (_secret) return _secret;
+  const s = process.env.JWT_SECRET;
+  if (!s) throw new Error("JWT_SECRET environment variable is required");
+  _secret = new TextEncoder().encode(s);
+  return _secret;
 }
-const SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 const COOKIE_NAME = "hb_caregiver_token";
 const SESSION_DAYS = 14;
 
@@ -32,12 +37,12 @@ export async function createCaregiverToken(payload: Omit<CaregiverTokenPayload, 
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(`${SESSION_DAYS}d`)
-    .sign(SECRET);
+    .sign(getSecret());
 }
 
 export async function verifyCaregiverToken(token: string): Promise<CaregiverTokenPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, SECRET);
+    const { payload } = await jwtVerify(token, getSecret());
     if (payload.role !== "caregiver") return null;
     return payload as unknown as CaregiverTokenPayload;
   } catch {
