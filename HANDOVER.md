@@ -1,14 +1,38 @@
 # HB Home Health — Session Handover
 
-**Last updated:** 2026-05-08 by Claude (Opus 4.7) with Ralph
-**Production:** https://www.humanityandblessings.com (Vercel project `hb-homehealth`, deployed `dpl_7QtZBsXA8xQD5UzHtUH32Jxxybmf` → Ready)
-**Repo:** github.com/rpierr33/hb-homehealth, branch `main` clean and pushed (HEAD `8f00674`)
+**Last updated:** 2026-05-11 by Claude (Opus 4.7) with Ralph
+**Production:** https://www.humanityandblessings.com (Vercel project `hb-homehealth`, deployed `dpl_7hWzgCDw4sU4UuYEzXuvvQPHTJBu` → Ready)
+**Repo:** github.com/rpierr33/hb-homehealth, branch `main` clean (HEAD `2e88f81`)
 
 If you are an agent picking up work on this project, **read this file before doing anything**. It supersedes any stale memory you may have about this project's state.
 
 ---
 
-## What just shipped (do not redo)
+## What just shipped 2026-05-11 — Caregiver Portal Phase 1 (do not redo)
+
+- **Caregiver portal** at `/caregiver/*` (login, dashboard, weekly visit log with GPS clock in/out, tasks, patient signatures, attestation, submit, duplicate-previous-week)
+- **Admin visit log dashboard** at `/admin/visits` + `/admin/visits/[id]` (list, detail, Approve/Reject/Reopen/Export-CSV/Print–PDF/Delete actions; pink "Visit Logs" CTA on admin home header)
+- **Branded printout** via `@media print` swap — clean card design with H&B logo, used when admin clicks Print/Save-PDF on a visit detail
+- **CSV export** for Mobile Caregiver+ import or fast manual entry — one row per worked day with all CURES Act EVV fields
+- **Logo polish**: `public/logo.webp` regenerated from PDF source (1600×702 transparent), `public/logo-white.webp` variant for dark backgrounds; footer now uses the white variant
+- **Build-safety**: `lib/db/index.ts`, `lib/auth.ts`, `lib/caregiver-auth.ts` defer env-var reads to first use so previews without prod env vars don't crash builds
+
+**Canonical spec for this work:** `docs/CAREGIVER_PORTAL_SPEC.md` (v1.0 locked) — has DB schema, route map, anti-scope-drift rules. Read this before touching the caregiver portal.
+
+**Database (verified intact):**
+- 4 new tables added to prod Neon: `caregivers`, `visit_logs`, `visit_log_days`, `visit_log_tasks`
+- Original 5 tables (admin_users, applications, inquiries, leads, referrals): UNCHANGED
+- `patients` table was briefly created in the session, then dropped — per HIPAA/no-BAA constraint, patient info is now per-visit text fields on `visit_logs` (patient_first_name, patient_last_name, patient_no, voucher_no)
+- Migration SQL: `drizzle/0000_wooden_steve_rogers.sql`
+
+**Test caregiver in prod DB:**
+- Email: `test.caregiver@humanityandblessings.com`
+- Password: `Test1234!`
+- Employee #: EMP-0001
+
+---
+
+## What just shipped 2026-05-08 (still relevant)
 
 - **Drizzle/Neon migration** — Supabase fully retired; production runs on Neon Postgres + Drizzle ORM + JWT auth (jose + bcryptjs). Schema in `lib/db/schema.ts` matches production Neon (5/5 tables: `inquiries`, `leads`, `referrals`, `applications`, `admin_users`). Verified with end-to-end smoke test on 2026-05-08 — all 4 form endpoints write rows successfully and clean up.
 - **Sentry observability** — `sentry.{client,edge,server}.config.ts` live. Errors are being captured.
