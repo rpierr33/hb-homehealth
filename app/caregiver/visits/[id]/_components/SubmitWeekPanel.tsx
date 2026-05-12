@@ -27,15 +27,17 @@ export default function SubmitWeekPanel({
 
   return (
     <div className="mt-6 rounded-2xl border border-gray-200 bg-white p-5">
-      <h2 className="font-semibold text-neutral-dark">Submit this week</h2>
+      <h2 className="font-semibold text-neutral-dark">End this week</h2>
       <p className="mt-1 text-sm text-neutral-mid">
-        {daysComplete === totalDays
-          ? `All ${totalDays} days are complete. Ready to submit.`
+        {daysReadyToSubmit === totalDays
+          ? `All ${totalDays} days complete. You can end the week now.`
           : daysStarted === 0
             ? "Start by clocking in on a day card above."
             : blockedByIncomplete
-              ? `${daysReadyToSubmit} of ${daysStarted} started days are fully signed off. Finish the rest (clock out + patient signature) before submitting.`
-              : `${daysReadyToSubmit} of ${totalDays} day${daysReadyToSubmit === 1 ? "" : "s"} ready. Empty days are treated as days you didn't work.`}
+              ? `Finish the rest (clock out + patient signature) on the started days before ending the week.`
+              : daysReadyToSubmit === 1
+                ? "You can end the week with 1 worked day. Any other day stays blank — that's fine."
+                : `You can end the week with these ${daysReadyToSubmit} worked days. Any other day stays blank — that's fine.`}
       </p>
 
       {error && (
@@ -55,13 +57,15 @@ export default function SubmitWeekPanel({
       >
         <Send size={14} />
         {daysReadyToSubmit === totalDays
-          ? "Submit Week"
-          : `Submit Week (${daysReadyToSubmit} of ${totalDays} days)`}
+          ? "End Week & Submit"
+          : daysReadyToSubmit === 1
+            ? "End Week & Submit (1 day worked)"
+            : `End Week & Submit (${daysReadyToSubmit} days worked)`}
       </button>
 
       <p className="mt-2 text-xs text-neutral-mid">
-        Final caregiver attestation and signature is captured on the next
-        screen.
+        After ending the week, you&apos;ll sign the caregiver attestation and
+        the log is sent to the office. It becomes read-only.
       </p>
 
       <SignaturePadModal

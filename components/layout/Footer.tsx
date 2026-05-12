@@ -21,11 +21,13 @@ export function Footer() {
             {/* Brand */}
             <div className="lg:col-span-1">
               <Image
-                src="/logo.webp"
+                src="/logo-white.webp"
                 alt="Humanity & Blessings Home Health"
-                width={80}
-                height={80}
+                width={320}
+                height={140}
                 className="h-20 w-auto mb-5"
+                priority
+                unoptimized
               />
               <p className="text-xl font-bold tracking-tight text-white">
                 Humanity &amp; Blessings Home Health

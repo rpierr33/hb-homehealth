@@ -6,7 +6,7 @@ import { SITE } from "@/lib/site-config";
 
 export function MobileCTABar() {
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white p-3 md:hidden">
+    <div data-mobile-cta-bar className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white p-3 md:hidden print:hidden">
       <div className="flex gap-2">
         <a
           href={`tel:${SITE.contact.phone.tel}`}

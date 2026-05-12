@@ -78,9 +78,10 @@ export function Navbar() {
             <Image
               src="/logo.webp"
               alt="Humanity & Blessings Home Health"
-              width={70}
-              height={70}
+              width={320}
+              height={140}
               className="h-16 w-auto"
+              priority
             />
           </Link>
 
