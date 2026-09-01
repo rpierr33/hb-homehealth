@@ -4,13 +4,15 @@ type StripeRequestOptions = {
 };
 
 export function getStripePublishableKey() {
-  return process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
+  return (
+    process.env.STRIPE_PUBLISHABLE_KEY ||
+    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ||
+    ""
+  );
 }
 
 export function isStripeConfigured() {
-  return Boolean(
-    process.env.STRIPE_SECRET_KEY && process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-  );
+  return Boolean(process.env.STRIPE_SECRET_KEY && getStripePublishableKey());
 }
 
 async function stripeRequest<T>(
