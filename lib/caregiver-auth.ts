@@ -22,6 +22,7 @@ export type CaregiverTokenPayload = {
   email: string;
   role: "caregiver";
   employeeNo: string;
+  passwordResetRequired?: boolean;
 };
 
 export async function hashCaregiverPassword(password: string) {

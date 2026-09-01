@@ -40,6 +40,7 @@ export async function POST(request: Request) {
       sub: user.id,
       email: user.email,
       employeeNo: user.employeeNo,
+      passwordResetRequired: user.passwordResetRequired ?? false,
     });
     await setCaregiverAuthCookie(token);
 
@@ -51,6 +52,7 @@ export async function POST(request: Request) {
         lastName: user.lastName,
         employeeNo: user.employeeNo,
         languagePref: user.languagePref,
+        passwordResetRequired: user.passwordResetRequired ?? false,
       },
     });
   } catch (err) {

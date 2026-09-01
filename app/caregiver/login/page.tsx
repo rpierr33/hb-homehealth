@@ -22,14 +22,19 @@ export default function CaregiverLoginPage() {
       body: JSON.stringify({ email, password }),
     });
 
+    const body = await res.json().catch(() => ({}));
+
     if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
       setError(body.error || "Invalid email or password");
       setLoading(false);
       return;
     }
 
-    router.push("/caregiver");
+    if (body.caregiver?.passwordResetRequired) {
+      router.push("/caregiver/change-password");
+    } else {
+      router.push("/caregiver");
+    }
     router.refresh();
   };
 

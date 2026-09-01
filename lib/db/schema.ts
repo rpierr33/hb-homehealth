@@ -116,6 +116,7 @@ export const caregivers = pgTable("caregivers", {
   lastName: text("last_name").notNull(),
   employeeNo: text("employee_no").notNull().unique(),
   languagePref: text("language_pref").default("en"), // 'en' | 'es'
+  passwordResetRequired: boolean("password_reset_required").default(false),
   active: boolean("active").default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
@@ -216,3 +217,21 @@ export const visitLogTasks = pgTable(
     }),
   })
 );
+
+export const paymentMethodCaptures = pgTable("payment_method_captures", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  customerName: text("customer_name").notNull(),
+  customerEmail: text("customer_email").notNull(),
+  customerPhone: text("customer_phone"),
+  stripeCustomerId: text("stripe_customer_id").notNull(),
+  stripeSetupIntentId: text("stripe_setup_intent_id").notNull().unique(),
+  stripePaymentMethodId: text("stripe_payment_method_id"),
+  cardBrand: text("card_brand"),
+  cardLast4: text("card_last4"),
+  cardExpMonth: text("card_exp_month"),
+  cardExpYear: text("card_exp_year"),
+  status: text("status").default("setup_created"),
+  errorMessage: text("error_message"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});

@@ -22,12 +22,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { patientFirstName, patientLastName, serviceTypes, weekStartDate } =
+  const { patientFirstName, patientLastName, serviceTypes, weekStartDate, comments } =
     body as {
       patientFirstName?: string;
       patientLastName?: string;
       serviceTypes?: string[];
       weekStartDate?: string;
+      comments?: string;
     };
 
   if (
@@ -51,6 +52,7 @@ export async function POST(request: Request) {
         patientLastName: patientLastName.trim(),
         serviceTypes,
         weekStartDate,
+        comments: comments?.trim() || null,
         status: "draft",
       })
       .returning({ id: visitLogs.id });

@@ -28,6 +28,7 @@ export default function NewVisitPage() {
   const [patientLastName, setPatientLastName] = useState("");
   const [serviceTypes, setServiceTypes] = useState<string[]>([]);
   const [weekStartDate, setWeekStartDate] = useState(getMondayOfWeek());
+  const [comments, setComments] = useState("");
 
   const toggleService = (key: string) => {
     setServiceTypes((prev) =>
@@ -55,6 +56,7 @@ export default function NewVisitPage() {
         patientLastName,
         serviceTypes,
         weekStartDate,
+        comments,
       }),
     });
     if (!res.ok) {
@@ -190,6 +192,23 @@ export default function NewVisitPage() {
               );
             })}
           </div>
+        </div>
+
+        <div>
+          <label
+            htmlFor="comments"
+            className="block text-sm font-medium text-neutral-dark"
+          >
+            Comments
+          </label>
+          <textarea
+            id="comments"
+            value={comments}
+            onChange={(e) => setComments(e.target.value)}
+            rows={3}
+            className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#E8476C] focus:ring-1 focus:ring-[#E8476C]"
+            placeholder="Optional notes for the office."
+          />
         </div>
 
         {error && (

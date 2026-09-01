@@ -71,7 +71,13 @@ export async function PATCH(
     await db
       .update(visitLogs)
       .set({
-        status: "submitted",
+        status: "draft",
+        submittedAt: null,
+        caregiverSignaturePngUrl: null,
+        caregiverSignatureSvg: null,
+        caregiverAttestationSignedAt: null,
+        caregiverAttestationIp: null,
+        caregiverAttestationUserAgent: null,
         approvedAt: null,
         approvedBy: null,
         rejectedAt: null,
@@ -79,7 +85,7 @@ export async function PATCH(
         updatedAt: now,
       })
       .where(eq(visitLogs.id, id));
-    return NextResponse.json({ ok: true, status: "submitted" });
+    return NextResponse.json({ ok: true, status: "draft" });
   }
 
   return NextResponse.json(

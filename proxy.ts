@@ -51,6 +51,14 @@ export async function proxy(request: NextRequest) {
       if (payload.role !== "caregiver") {
         return NextResponse.redirect(new URL("/caregiver/login", request.url));
       }
+      if (
+        payload.passwordResetRequired === true &&
+        !pathname.startsWith("/caregiver/change-password")
+      ) {
+        return NextResponse.redirect(
+          new URL("/caregiver/change-password", request.url)
+        );
+      }
     } catch {
       return NextResponse.redirect(new URL("/caregiver/login", request.url));
     }
