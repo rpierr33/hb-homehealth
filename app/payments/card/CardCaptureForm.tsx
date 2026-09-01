@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, CreditCard, Loader2, ShieldCheck } from "lucide-react";
 
 type StripeLike = {
@@ -8,14 +8,29 @@ type StripeLike = {
   confirmSetup: (options: {
     elements: ElementsLike;
     clientSecret: string;
-    confirmParams: { return_url: string };
+    confirmParams: {
+      return_url: string;
+      payment_method_data?: {
+        billing_details?: {
+          name?: string;
+          email?: string;
+          phone?: string;
+        };
+      };
+    };
     redirect: "if_required";
   }) => Promise<{ error?: { message?: string }; setupIntent?: { id: string } }>;
 };
 
 type ElementsLike = {
-  create: (type: "payment", options?: object) => { mount: (selector: string) => void };
+  create: (type: "payment", options?: object) => StripeElementLike;
   submit: () => Promise<{ error?: { message?: string } }>;
+};
+
+type StripeElementLike = {
+  mount: (selector: string) => void;
+  unmount: () => void;
+  on: (event: "ready" | "loaderror", handler: (event?: { error?: { message?: string } }) => void) => void;
 };
 
 declare global {
@@ -57,6 +72,7 @@ export default function CardCaptureForm() {
   const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
   const [ready, setReady] = useState(false);
+  const [paymentElementReady, setPaymentElementReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savedCard, setSavedCard] = useState<{
@@ -67,8 +83,36 @@ export default function CardCaptureForm() {
   } | null>(null);
   const stripeRef = useRef<StripeLike | null>(null);
   const elementsRef = useRef<ElementsLike | null>(null);
+  const paymentElementRef = useRef<StripeElementLike | null>(null);
   const clientSecretRef = useRef("");
   const setupIntentIdRef = useRef("");
+
+  useEffect(() => {
+    if (!ready || !elementsRef.current || paymentElementRef.current) return;
+
+    const paymentElement = elementsRef.current.create("payment", {
+      layout: "tabs",
+      fields: {
+        billingDetails: {
+          name: "never",
+          email: "never",
+          phone: "never",
+        },
+      },
+    });
+    paymentElementRef.current = paymentElement;
+    paymentElement.on("ready", () => setPaymentElementReady(true));
+    paymentElement.on("loaderror", (event) => {
+      setError(event?.error?.message || "Could not load the secure card form.");
+    });
+    paymentElement.mount("#payment-element");
+
+    return () => {
+      paymentElement.unmount();
+      paymentElementRef.current = null;
+      setPaymentElementReady(false);
+    };
+  }, [ready]);
 
   const startCardCapture = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -105,11 +149,8 @@ export default function CardCaptureForm() {
       elementsRef.current = elements;
       clientSecretRef.current = body.clientSecret;
       setupIntentIdRef.current = body.setupIntentId;
+      setPaymentElementReady(false);
       setReady(true);
-
-      window.setTimeout(() => {
-        elements.create("payment", { layout: "tabs" }).mount("#payment-element");
-      }, 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not start card validation.");
     } finally {
@@ -137,7 +178,16 @@ export default function CardCaptureForm() {
       const result = await stripe.confirmSetup({
         elements,
         clientSecret: clientSecretRef.current,
-        confirmParams: { return_url: window.location.href },
+        confirmParams: {
+          return_url: window.location.href,
+          payment_method_data: {
+            billing_details: {
+              name,
+              email,
+              phone: phone || undefined,
+            },
+          },
+        },
         redirect: "if_required",
       });
 
@@ -256,10 +306,19 @@ export default function CardCaptureForm() {
 
             {ready && (
               <form onSubmit={saveCard} className="mt-6 space-y-4">
-                <div id="payment-element" className="rounded-lg border border-gray-200 p-3" />
+                <div
+                  id="payment-element"
+                  className="min-h-[220px] rounded-lg border border-gray-200 p-3"
+                />
+                {!paymentElementReady && (
+                  <p className="flex items-center gap-2 text-sm text-neutral-mid">
+                    <Loader2 size={14} className="animate-spin" />
+                    Loading secure card fields...
+                  </p>
+                )}
                 <button
                   type="submit"
-                  disabled={saving}
+                  disabled={saving || !paymentElementReady}
                   className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#E8476C] py-3 text-sm font-semibold text-white transition-all hover:bg-[#c73a5a] disabled:opacity-50"
                 >
                   {saving && <Loader2 size={16} className="animate-spin" />}
