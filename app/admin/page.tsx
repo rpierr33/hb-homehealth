@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Users, FileDown, RefreshCw, Inbox, Heart, Briefcase, Megaphone,
-  X, Trash2, ChevronDown, ClipboardList,
+  X, Trash2, ChevronDown, ClipboardList, CreditCard,
 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -340,6 +340,12 @@ export default function AdminDashboard() {
             className="inline-flex items-center gap-1.5 rounded-lg bg-[#E8476C] px-4 py-2 text-sm font-medium text-white hover:bg-[#c73a5a]"
           >
             <ClipboardList size={14} /> Visit Logs
+          </Link>
+          <Link
+            href="/admin/payments"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-neutral-mid hover:border-[#E8476C] hover:text-[#E8476C]"
+          >
+            <CreditCard size={14} /> Saved Cards
           </Link>
           <button
             onClick={handleSignOut}
